@@ -12,7 +12,7 @@ double* createModel(int nbInputs) {
 	return model;
 }
 
-double* trainLinearModel(double dataset[], int dataSize, double* model, int modelSize, double iterNumber, double learning) {
+double* trainLinearModel(double* dataset, int dataSize, double* model, int modelSize, double iterNumber, double learning) {
 	int random = 0;
 	for (int i = 0; i < iterNumber; i++)
 	{
