@@ -6,7 +6,8 @@
 double* createModel(int nbInputs) {
 	auto model = new double[nbInputs + 1];
 	for (int i = 0; i < nbInputs; i++) {
-		model[0] = rand() % 3 - 1;
+		int rnd = rand() % 2;
+		model[0] = rnd ? -1 : 1;
 	}
 	return model;
 }
