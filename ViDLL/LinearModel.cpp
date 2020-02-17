@@ -12,11 +12,28 @@ double* createModel(int nbInputs) {
 	return model;
 }
 
-void trainLinearModel() {
+double* trainLinearModel(double dataset[], int dataSize, double* model, int modelSize, double iterNumber, double learning) {
+	int random = 0;
+	for (int i = 0; i < iterNumber; i++)
+	{
+		random = rand() % dataSize;
+		double *data = dataset + random * modelSize;
 
+		double g = predictLinear(model, modelSize-1, data);
+
+		double modif = learning * (data[modelSize-1] - g);
+
+		for (int k = 0; k < modelSize; k++)
+		{
+			model[k] += modif * model[k];
+		}
+	}
+
+	return model;
+	
 }
 
-double predictLinear(double* model, int size, double inputs[]) {
+double predictLinear(double* model, int size, double *inputs) {
 	double res = 0;
 	for (int i = 0; i < size; i++) {
 		res += model[i] * inputs[i];
