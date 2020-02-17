@@ -3,7 +3,7 @@
 #include "pch.h"
 
 
-double* createLinear(int nbInputs) {
+double* createModel(int nbInputs) {
 	auto model = new double[nbInputs + 1];
 	for (int i = 0; i < nbInputs; i++) {
 		model[0] = rand() % 3 - 1;
