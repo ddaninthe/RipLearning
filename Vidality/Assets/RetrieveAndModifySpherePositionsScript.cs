@@ -1,16 +1,21 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
 {
-    public Transform[] trainingSpheres;
 
+    [DllImport("ViDLL.dll")]
+    private static extern IntPtr createModel(int nbInputs);
+
+    [DllImport("ViDLL.dll")]
+    private static extern double predictLinear(IntPtr model, int size, double[] inputs);
+
+    public Transform[] trainingSpheres;
     public Transform[] testSpheres;
 
-
     private double[] trainingInputs;
-
     private double[] trainingExpectedOutputs;
 
     private IntPtr model;
@@ -28,7 +33,7 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
     
     public void CreateModel()
     {
-        //model = CreateLinearModel(2, 1);
+        model = createModel(2);
     }
 
     public void Train()
@@ -51,11 +56,11 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
         for (var i = 0; i < testSpheres.Length; i++)
         {
             var input = new double[] {testSpheres[i].position.x, testSpheres[i].position.z};
-            //var predictedY = PredictXXXLinearModel(model, input, 2)
-            var predictedY = Random.Range(-10, 10);
+            var predictedY = predictLinear(model, 2, input);
+            //var predictedY = Random.Range(-5, 5);
             testSpheres[i].position = new Vector3(
                 testSpheres[i].position.x,
-                predictedY,
+                Convert.ToSingle(predictedY),
                 testSpheres[i].position.z);
         }
     }
