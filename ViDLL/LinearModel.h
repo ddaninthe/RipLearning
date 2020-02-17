@@ -6,7 +6,7 @@
 #define LINEAR_API __declspec(dllimport)
 #endif
 
-
-extern "C" int createLinearModel(int nbInputs, int nbOutput);
+extern "C" double* createLinearModel(int nbInputs);
 extern "C" void trainLinearModel();
-extern "C" double predictLinear(int model, int x, int y);
+extern "C" double predictLinear(double* ptr, int size, double inputs[]);
+extern "C" void clear(double ptr);

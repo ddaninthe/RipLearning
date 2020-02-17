@@ -2,14 +2,27 @@
 #include "LinearModel.h"
 #include "pch.h"
 
-int createLinearModel(int nbInputs, int nbOutputs) {
-	return rand() % 20 - 10;
+
+double* createLinear(int nbInputs) {
+	auto model = new double[nbInputs + 1];
+	for (int i = 0; i < nbInputs; i++) {
+		model[0] = rand() % 3 - 1;
+	}
+	return model;
 }
 
 void trainLinearModel() {
 
 }
 
-double predictLinear(int model, int x, int y) {
-	return rand() % 20 - 10;
+double predictLinear(double* model, int size, double inputs[]) {
+	double res = 0;
+	for (int i = 0; i < size; i++) {
+		res += model[i] * inputs[i];
+	}
+	return res;
+}
+
+void clear(double* ptr) {
+	delete[] ptr;
 }
