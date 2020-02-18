@@ -22,7 +22,6 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
     public Transform[] testSpheres;
 
     private double[] trainingInputs;
-    //private double[] trainingExpectedOutputs;
 
     private IntPtr model;
 
@@ -47,7 +46,6 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
     public void Train()
     {
         trainingInputs = new double[trainingSpheres.Length * 3];
-        //trainingExpectedOutputs = new double[trainingSpheres.Length];
 
         for (int i = 0; i < trainingSpheres.Length; i++)
         {
@@ -55,44 +53,22 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
             trainingInputs[3 * i + 1] = trainingSpheres[i].position.z;
             trainingInputs[3 * i + 2] = trainingSpheres[i].position.y;
         }
-
-        Debug.Log("Boucle Train Start !");
+        
         trainLinearClassification(trainingInputs, trainingSpheres.Length, model, 2, 10000, 0.0001);
-        Debug.Log("Boucle Train End !");
 
-        ///Test post training
-        /*for (var i = 0; i < trainingSpheres.Length; i++)
-        {
-            Debug.Log("training Sphere numero " + i + " : x = " + trainingSpheres[i].position.x);
-            Debug.Log("training Sphere numero " + i + " : z = " + trainingSpheres[i].position.z);
-            Debug.Log("training Sphere numero " + i + " : y = " + trainingSpheres[i].position.y);
-        }*/
-
-
-        // TrainLinearModelRosenblatt(model, trainingInputs, 2, trainingSpheres.Length, trainingExpectedOutputs, 1, 0.01, 1000)
     }
 
     public void PredictOnTestSpheres()
     {
-        Debug.Log("Boucle Predict Start !");
         for (int i = 0; i < testSpheres.Length; i++)
         {
             var input = new double[] {testSpheres[i].position.x, testSpheres[i].position.z};
             var predictedY = predictLinearClassification(model, 2, input);
-            //var predictedY = Random.Range(-5, 5);
-            var sphereX = testSpheres[i].position.x;
-            var sphereY = Convert.ToSingle(predictedY);
-            var sphereZ = testSpheres[i].position.z;
             testSpheres[i].position = new Vector3(
-                sphereX,
-                sphereY,
-                sphereZ);
-            /*testSpheres[i].position = new Vector3(
                 testSpheres[i].position.x,
                 Convert.ToSingle(predictedY),
-                testSpheres[i].position.z);*/
+                testSpheres[i].position.z);
         }
-        Debug.Log("Boucle Predict End !");
     }
 
     public void ReleaseModel()
