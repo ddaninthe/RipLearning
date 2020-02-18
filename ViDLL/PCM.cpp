@@ -1,28 +1,48 @@
 #include "PCM.h"
 #include "pch.h"
 
-double* createPCMModel(int* layout, int size, int cellSize) {
-	double* model = new double[size];
-	for (int i = 0; i < size; i++) {
-		model[i] = createCellArray(layout[i], cellSize);
-	}
-	return model;
+struct MLP {
+	double** deltas;
+	double** x;
+	double*** w;
+	int* d;
+	int size;
+};
+
+double* createPCMModel(int* layout, int arraySize) {
+	MLP model;
+	model.d = layout;
+	model.w = fillW(layout, arraySize);
+	model.deltas = fillArrayZero(layout, arraySize);
+	model.x = fillArrayZero(layout, arraySize);
+	model.size = arraySize;
+	return
 }
 
-double* createCellArray(int cellNumber, int cellSize) {
-	double* cellArray = new double[cellNumber];
-	for (int j = 0; j < cellNumber; j++) {
-		cellArray[j] = createCell(int cellSize);
+double*** fillW(int* layout, int l) {
+	double*** w = new double** [l];
+	int i = 0, j = 0;
+	for (int a = 1; a < l; a++) {
+		i = layout[a - 1], j = layout[a];
+		w[a] = new double* [i];
+		for (int b = 0; b < i; b++) {
+			w[a][b] = new double[j];
+				for (int c = 0; c < j; c++) {
+					w[a][b][c] = ((rand() / (double)RAND_MAX) - 0.5) * 2;
+			}
+		}
 	}
-	return cellArray;
+	return w;
 }
 
-double* createCell(int cellSize) {
-	double* cell = new double[cellSize];
-	for (int k = 0; k < cellSize; j++) {
-		cell[j] = ((rand() / (double)RAND_MAX) - 0.5) * 2;
+double** fillArrayZero(int* layout, int l) {
+	double** array = new double* [l];
+	int j = 0;
+	for (int a = 1; a < l; a++) {
+		j = layout[a];
+		array[a] = new double[j];
 	}
-	return cell;
+	return array;
 }
 
 void trainPCMClassification() {
@@ -33,8 +53,8 @@ void trainPCMRegression() {
 
 }
 
-double predictPCMClassification() {
-	return rand() % 20 - 10;
+double predictPCMClassification(MLP model) {
+	
 }
 
 double predictPCMRegression() {
