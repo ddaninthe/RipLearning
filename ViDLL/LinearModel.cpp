@@ -7,7 +7,7 @@ using namespace Eigen;
 
 double* createLinearModel(int nbInputs) {
 	auto model = new double[nbInputs + 1];
-	for (int i = 0; i < nbInputs; i++) {
+	for (int i = 0; i < nbInputs + 1; i++) {
 		model[i] = ((rand() / (double) RAND_MAX) - 0.5) * 2;
 	}
 	return model;
@@ -15,18 +15,19 @@ double* createLinearModel(int nbInputs) {
 
 /**
  * @param dataset the array containing data
- * @param dataSize the size of the data
+ * @param datasetSize the size of the dataset
+ * @param expectedOutputs the expectedOutputs
  * @param model the linear model created, with the bias
  * @param modelSize the size of the model, minus the bias/predict
  * @param nbIter the number of iteration
  */
-void trainLinearClassification(double* dataset, int dataSize, double* model, int modelSize, double nbIter, double learning) {
+void trainLinearClassification(double* dataset, int datasetSize, int* expectedOutputs, double* model, int modelSize, double nbIter, double learning) {
 	for (int i = 0; i < nbIter; i++) {
-		int random = rand() % dataSize;
-		double *data = dataset + random * (modelSize + 1);
+		int index = rand() % datasetSize;
+		double *data = dataset + index * modelSize;
 
 		int g = predictLinearClassification(model, modelSize, data);
-		double modif = learning * (data[modelSize] - g);
+		double modif = learning * (expectedOutputs[index] - g);
 
 		model[modelSize] += modif;
 		for (int k = 0; k < modelSize; k++) {
@@ -34,7 +35,6 @@ void trainLinearClassification(double* dataset, int dataSize, double* model, int
 		}
 	}
 }
-
 
 /**
  * @param dataset the array containing data
@@ -44,7 +44,7 @@ void trainLinearClassification(double* dataset, int dataSize, double* model, int
  * @param modelSize the size of the model, minus the bias/predict
  * @param nbIter the number of iteration
  */
-void trainLinearRegression(double* dataset, int datasetSize, double* expectedOutputs, double* model, int modelSize, double nbIter, double learning) {
+void trainLinearRegression(double* dataset, int datasetSize, double* expectedOutputs, double* model, int modelSize) {
 	MatrixXd X(datasetSize, modelSize + 1);
 	for (int i = 0; i < datasetSize; i++) {
 		X(i, modelSize) = 1;
@@ -63,7 +63,6 @@ void trainLinearRegression(double* dataset, int datasetSize, double* expectedOut
 		model[i] = W(i, 0);
 	}
 }
-
 
 int predictLinearClassification(double* model, int size, double* inputs) {
 	return predictLinearRegression(model, size, inputs) >= 0 ? 1 : -1;

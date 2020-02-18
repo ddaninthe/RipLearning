@@ -15,3 +15,7 @@ extern "C" {
 	__declspec(dllexport) double* predictPCMClassification(MLP * model, double* data);
 	__declspec(dllexport) double* predictPCMRegression(MLP * model, double* data);
 }
+
+double*** fillW(int* layout, int l);
+double** fillArrayZero(int* layout, int l);
+double** fillX(int* layout, int l);
