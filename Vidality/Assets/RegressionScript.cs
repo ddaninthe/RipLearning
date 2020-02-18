@@ -3,17 +3,17 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
+public class RegressionScript : MonoBehaviour
 {
 
     [DllImport("ViDLL.dll")]
     private static extern IntPtr createLinearModel(int nbInputs);
 
     [DllImport("ViDLL.dll")]
-    private static extern IntPtr trainLinearClassification(double[] dataset, int dataSize, IntPtr model, int modelSize, double iterNumber, double learning);
+    private static extern IntPtr trainLinearRegression(double[] dataset, int dataSize, IntPtr model, int modelSize, double iterNumber, double learning);
 
     [DllImport("ViDLL.dll")]
-    private static extern int predictLinearClassification(IntPtr model, int size, double[] inputs);
+    private static extern double predictLinearRegression(IntPtr model, int size, double[] inputs);
 
     [DllImport("ViDLL.dll")]
     private static extern void clear(IntPtr model);
@@ -36,7 +36,7 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
                 testSpheres[i].position.z);
         }
     }
-    
+
     public void CreateModel()
     {
         ReleaseModel();
@@ -57,7 +57,7 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
         }
 
         Debug.Log("Boucle Train Start !");
-        trainLinearClassification(trainingInputs, trainingSpheres.Length, model, 2, 10000, 0.0001);
+        trainLinearRegression(trainingInputs, trainingInputs.Length, model, 2, 100000, 0.0001);
         Debug.Log("Boucle Train End !");
 
         ///Test post training
@@ -77,8 +77,8 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
         Debug.Log("Boucle Predict Start !");
         for (int i = 0; i < testSpheres.Length; i++)
         {
-            var input = new double[] {testSpheres[i].position.x, testSpheres[i].position.z};
-            var predictedY = predictLinearClassification(model, 2, input);
+            var input = new double[] { testSpheres[i].position.x, testSpheres[i].position.z };
+            var predictedY = predictLinearRegression(model, 2, input);
             //var predictedY = Random.Range(-5, 5);
             var sphereX = testSpheres[i].position.x;
             var sphereY = Convert.ToSingle(predictedY);
