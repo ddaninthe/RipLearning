@@ -1,9 +1,20 @@
 #include "PCM.h"
 #include "pch.h"
 
-double * createPCMModel(double* nbInputs) {
-	auto t = new double[nbInputs[0]];
-	return t;
+double* createPCMModel(int* layout, int size) {
+	double* model = new double[size];
+	for (int i = 0; i < size; i++) {
+		model[i] = createCellArray(layout[i])
+	}
+	return model;
+}
+
+double* createCellArray(int cellNumber) {
+	double* cellArray = new double[cellNumber];
+	for (int j = 0; j < cellNumber; j++) {
+		cellArray[j] = ((rand() / (double)RAND_MAX) - 0.5) * 2;
+	}
+	return cellArray
 }
 
 void trainPCMClassification() {
