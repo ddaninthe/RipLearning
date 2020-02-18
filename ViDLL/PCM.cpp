@@ -1,22 +1,14 @@
 #include "PCM.h"
 #include "pch.h"
 
-struct MLP {
-	double** deltas;
-	double** x;
-	double*** w;
-	int* d;
-	int size;
-};
-
-double* createPCMModel(int* layout, int arraySize) {
-	MLP model;
-	model.d = layout;
-	model.w = fillW(layout, arraySize);
-	model.deltas = fillArrayZero(layout, arraySize);
-	model.x = fillArrayZero(layout, arraySize);
-	model.size = arraySize;
-	return
+MLP* createPCMModel(int* layout, int arraySize) {
+	MLP* model = new MLP();
+	model->d = layout;
+	model->w = fillW(layout, arraySize);
+	model->deltas = fillArrayZero(layout, arraySize);
+	model->x = fillX(layout, arraySize);
+	model->size = arraySize;
+	return model;
 }
 
 double*** fillW(int* layout, int l) {
@@ -45,6 +37,17 @@ double** fillArrayZero(int* layout, int l) {
 	return array;
 }
 
+double** fillX(int* layout, int l) {
+	double** array = new double* [l];
+	int j = 0;
+	for (int a = 1; a < l; a++) {
+		j = layout[a];
+		array[a] = new double[j+1];
+		array[a][0] = 1.0;
+	}
+	return array;
+}
+
 void trainPCMClassification() {
 
 }
@@ -53,10 +56,47 @@ void trainPCMRegression() {
 
 }
 
-double predictPCMClassification(MLP model) {
-	
+double* predictPCMClassification(MLP* model, double* data) {
+	// add input in l=0
+	for (int j = 1; j < model->d[0] + 1; j++) {
+		model->x[0][j] = data[j];
+	}
+
+	for (int l = 1; l < model->size; l++) {
+		for (int j = 1; j < model->d[l] + 1; j++) {
+			double sum = 0.0;
+			for (int i = 0; i < model->d[l]; i++) {
+				sum += model->x[l - 1][i] * model->w[l][i][j];
+			}
+			model->x[l][j] = tanh(sum);
+		}	
+	}
+
+	return model->x[model->size];
 }
 
-double predictPCMRegression() {
-	return rand() % 20 - 10;
+double* predictPCMRegression(MLP* model, double* data) {
+	// add input in l=0
+	for (int j = 1; j < model->d[0] + 1; j++) {
+		model->x[0][j] = data[j];
+	}
+
+	for (int l = 1; l < model->size-1; l++) {
+		for (int j = 1; j < model->d[l] + 1; j++) {
+			double sum = 0.0;
+			for (int i = 0; i < model->d[l]; i++) {
+				sum += model->x[l - 1][i] * model->w[l][i][j];
+			}
+			model->x[l][j] = tanh(sum);
+		}
+	}
+	for (int j = 1; j < model->d[model->size] + 1; j++) {
+		double sum = 0.0;
+		for (int i = 0; i < model->d[model->size]; i++) {
+			sum += model->x[model->size - 1][i] * model->w[model->size][i][j];
+		}
+		model->x[model->size][j] = sum;
+	}
+
+	return model->x[model->size];
 }
