@@ -22,7 +22,7 @@ double* trainLinearClassification(double* dataset, int dataSize, double* model, 
 
 		double modif = learning * (data[modelSize] - g);
 
-		for (int k = 0; k < modelSize; k++) {
+		for (int k = 0; k < modelSize + 1; k++) {
 			model[k] += modif * model[k];
 		}
 	}
@@ -39,7 +39,7 @@ double* trainLinearRegression(double* dataset, int dataSize, double* model, int 
 
 		double modif = learning * (data[modelSize] - g);
 
-		for (int k = 0; k < modelSize; k++) {
+		for (int k = 0; k < modelSize + 1; k++) {
 			model[k] += modif * model[k];
 		}
 	}
@@ -52,9 +52,9 @@ double predictLinearClassification(double* model, int size, double *inputs) {
 }
 
 double predictLinearRegression(double* model, int size, double* inputs) {
-	double res = 0;
+	double res = model[0];
 	for (int i = 0; i < size; i++) {
-		res += model[i] * inputs[i];
+		res += model[i+1] * inputs[i+1];
 	}
 	return res;
 }

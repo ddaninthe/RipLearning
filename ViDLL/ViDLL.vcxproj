@@ -158,6 +158,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="LinearModel.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="PCM.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
