@@ -37,7 +37,6 @@ double* trainLinearClassification(double* dataset, int dataSize, double* model, 
 }
 
 
-
 /**
  * @tparam dataset the array containing data
  * @tparam dataSize the size of the data
