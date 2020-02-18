@@ -11,6 +11,5 @@
 #include "framework.h"
 #include <stdlib.h>
 #include <math.h>
-#include <ctime>
 
 #endif //PCH_H

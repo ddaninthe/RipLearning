@@ -1,22 +1,23 @@
 #include "PCM.h"
 #include "pch.h"
 
-double * createPCMModel(double * nbInputs) {
-	
+double * createPCMModel(double* nbInputs) {
+	auto t = new double[nbInputs[0]];
+	return t;
 }
 
-double * trainPCMClassification() {
+void trainPCMClassification() {
 
 }
 
-double * trainPCMRegression() {
+void trainPCMRegression() {
 
 }
 
 double predictPCMClassification() {
-
+	return rand() % 20 - 10;
 }
 
 double predictPCMRegression() {
-
+	return rand() % 20 - 10;
 }
