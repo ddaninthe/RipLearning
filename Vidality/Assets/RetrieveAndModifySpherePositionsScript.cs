@@ -22,6 +22,7 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
     public Transform[] testSpheres;
 
     private double[] trainingInputs;
+    private double[] trainingOutputs;
 
     private IntPtr model;
 
@@ -39,19 +40,21 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
     public void CreateModel()
     {
         ReleaseModel();
-        model = createLinearModel(2);
+        model = createLinearModel(3);
         PredictOnTestSpheres();
     }
 
     public void Train()
     {
         trainingInputs = new double[trainingSpheres.Length * 3];
+        trainingOutputs = new double[trainingSpheres.Length];
 
         for (int i = 0; i < trainingSpheres.Length; i++)
         {
             trainingInputs[3 * i] = trainingSpheres[i].position.x;
             trainingInputs[3 * i + 1] = trainingSpheres[i].position.z;
             trainingInputs[3 * i + 2] = trainingSpheres[i].position.y;
+            //trainingOutputs[i] = trainingSpheres[i].position.y;
         }
         
         trainLinearClassification(trainingInputs, trainingSpheres.Length, model, 2, 10000, 0.0001);

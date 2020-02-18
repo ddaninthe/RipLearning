@@ -22,6 +22,7 @@ public class TransformNonLinearSoftScript : MonoBehaviour
     public Transform[] testSpheres;
 
     private double[] trainingInputs;
+    private double[] trainingOutputs;
 
     private IntPtr model;
 
@@ -39,8 +40,15 @@ public class TransformNonLinearSoftScript : MonoBehaviour
     public void CreateModel()
     {
         ReleaseModel();
-        model = createLinearModel(2);
-        PredictOnTestSpheres();
+        model = createLinearModel(3);
+        for (var i = 0; i < trainingSpheres.Length; i++)
+        {
+            trainingSpheres[i].position = new Vector3(
+                trainingSpheres[i].position.x,
+                trainingSpheres[i].position.y,
+                trainingSpheres[i].position.y >= 1 ? Math.Abs(trainingSpheres[i].position.z) : -(Math.Abs(trainingSpheres[i].position.z))) ;
+        }
+        //PredictOnTestSpheres();
     }
 
     public void Train()
@@ -52,8 +60,9 @@ public class TransformNonLinearSoftScript : MonoBehaviour
             trainingInputs[3 * i] = trainingSpheres[i].position.x;
             trainingInputs[3 * i + 1] = trainingSpheres[i].position.z;
             trainingInputs[3 * i + 2] = trainingSpheres[i].position.y;
+            //trainingOutputs[i] = trainingSpheres[i].position.y;
         }
-        
+
         trainLinearClassification(trainingInputs, trainingSpheres.Length, model, 2, 10000, 0.0001);
         
     }

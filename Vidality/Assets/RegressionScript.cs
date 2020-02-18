@@ -10,7 +10,7 @@ public class RegressionScript : MonoBehaviour
     private static extern IntPtr createLinearModel(int nbInputs);
 
     [DllImport("ViDLL.dll")]
-    private static extern IntPtr trainLinearRegression(double[] dataset, int dataSize, IntPtr model, int modelSize, double iterNumber, double learning);
+    private static extern IntPtr trainLinearRegression(double[] dataset, int dataSize, double[] expectedOutputs, IntPtr model, int modelSize, double iterNumber, double learning);
 
     [DllImport("ViDLL.dll")]
     private static extern double predictLinearRegression(IntPtr model, int size, double[] inputs);
@@ -22,6 +22,7 @@ public class RegressionScript : MonoBehaviour
     public Transform[] testSpheres;
 
     private double[] trainingInputs;
+    private double[] trainingOutputs;
 
     private IntPtr model;
 
@@ -39,22 +40,23 @@ public class RegressionScript : MonoBehaviour
     public void CreateModel()
     {
         ReleaseModel();
-        model = createLinearModel(2);
+        model = createLinearModel(3);
         PredictOnTestSpheres();
     }
 
     public void Train()
     {
-        trainingInputs = new double[trainingSpheres.Length * 3];
+        trainingInputs = new double[trainingSpheres.Length * 2];
+        trainingOutputs = new double[trainingSpheres.Length];
 
         for (int i = 0; i < trainingSpheres.Length; i++)
         {
-            trainingInputs[3 * i] = trainingSpheres[i].position.x;
-            trainingInputs[3 * i + 1] = trainingSpheres[i].position.z;
-            trainingInputs[3 * i + 2] = trainingSpheres[i].position.y;
+            trainingInputs[2 * i] = trainingSpheres[i].position.x;
+            trainingInputs[2 * i + 1] = trainingSpheres[i].position.z;
+            trainingOutputs[i] = trainingSpheres[i].position.y;
         }
         
-        trainLinearRegression(trainingInputs, trainingInputs.Length, model, 2, 100000, 0.0001);
+        trainLinearRegression(trainingInputs, trainingSpheres.Length, trainingOutputs, model, 2, 100000, 0.0001);
         
     }
 
