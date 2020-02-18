@@ -5,6 +5,7 @@
 
 
 double* createLinearModel(int nbInputs) {
+	srand(std::time(nullptr));
 	auto model = new double[nbInputs + 1];
 	for (int i = 0; i < nbInputs; i++) {
 		model[i] = ((double)(rand() % 100 - 50)) / 100.f;
@@ -20,6 +21,7 @@ double* createLinearModel(int nbInputs) {
  * @tparam nbIter the number of iteration
  */
 double* trainLinearClassification(double* dataset, int dataSize, double* model, int modelSize, double nbIter, double learning) {
+	srand(std::time(nullptr));
 	int random;
 	for (int i = 0; i < nbIter; i++) {
 		random = rand() % dataSize;
