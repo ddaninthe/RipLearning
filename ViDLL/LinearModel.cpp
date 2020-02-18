@@ -12,9 +12,16 @@ double* createLinearModel(int nbInputs) {
 	return model;
 }
 
-double* trainLinearClassification(double* dataset, int dataSize, double* model, int modelSize, double iterNumber, double learning) {
+/**
+ * @tparam dataset the array containing data
+ * @tparam dataSize the size of the data
+ * @tparam model the linear model created, with the bias
+ * @tparam modelSize the size of the model, minus the bias/predict
+ * @tparam nbIter the number of iteration
+ */
+double* trainLinearClassification(double* dataset, int dataSize, double* model, int modelSize, double nbIter, double learning) {
 	int random;
-	for (int i = 0; i < iterNumber; i++) {
+	for (int i = 0; i < nbIter; i++) {
 		random = rand() % dataSize;
 		double *data = dataset + random * (modelSize + 1);
 
@@ -29,9 +36,18 @@ double* trainLinearClassification(double* dataset, int dataSize, double* model, 
 	return model;
 }
 
-double* trainLinearRegression(double* dataset, int dataSize, double* model, int modelSize, double iterNumber, double learning) {
+
+
+/**
+ * @tparam dataset the array containing data
+ * @tparam dataSize the size of the data
+ * @tparam model the linear model created, with the bias
+ * @tparam modelSize the size of the model, minus the bias/predict
+ * @tparam nbIter the number of iteration
+ */
+double* trainLinearRegression(double* dataset, int dataSize, double* model, int modelSize, double nbIter, double learning) {
 	int random;
-	for (int i = 0; i < iterNumber; i++) {
+	for (int i = 0; i < nbIter; i++) {
 		random = rand() % dataSize;
 		double *data = dataset + random * (modelSize + 1);
 
