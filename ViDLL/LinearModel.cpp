@@ -3,11 +3,11 @@
 #include "LinearModel.h"
 #include "pch.h"
 
-using namespace std;
+using namespace Eigen;
 
 double* createLinearModel(int nbInputs) {
 	auto model = new double[nbInputs + 1];
-	for (int i = 0; i < nbInputs + 1; i++) {
+	for (int i = 0; i < nbInputs; i++) {
 		model[i] = ((rand() / (double) RAND_MAX) - 0.5) * 2;
 	}
 	return model;
@@ -38,23 +38,29 @@ void trainLinearClassification(double* dataset, int dataSize, double* model, int
 
 /**
  * @param dataset the array containing data
- * @param dataSize the size of the data
+ * @param datasetSize the size of the dataset
+ * @param expectedOutputs the value expected
  * @param model the linear model created, with the bias
  * @param modelSize the size of the model, minus the bias/predict
  * @param nbIter the number of iteration
  */
-void trainLinearRegression(double* dataset, int dataSize, double* model, int modelSize, double nbIter, double learning) {
-	for (int i = 0; i < nbIter; i++) {
-		int random = rand() % dataSize;
-		double *data = dataset + random * (modelSize + 1);
-
-		double g = predictLinearRegression(model, modelSize, data);
-		double modif = learning * (data[modelSize] - g);
-		
-		model[modelSize] += modif;
-		for (int k = 0; k < modelSize; k++) {
-			model[k] += modif * data[k];
+void trainLinearRegression(double* dataset, int datasetSize, double* expectedOutputs, double* model, int modelSize, double nbIter, double learning) {
+	MatrixXd X(datasetSize, modelSize + 1);
+	for (int i = 0; i < datasetSize; i++) {
+		X(i, modelSize) = 1;
+		for (int j = 0; j < modelSize; j++) {
+			X(i, j) = dataset[2 * i + j];
 		}
+	}
+
+	MatrixXd Y(datasetSize, 1);
+	for (int i = 0; i < datasetSize; i++) {
+		Y(i, 0) = expectedOutputs[i];
+	}
+
+	MatrixXd W = ((X.transpose() * X).inverse() * X.transpose()) * Y;
+	for (int i = 0; i < W.rows(); i++) {
+		model[i] = W(i, 0);
 	}
 }
 
