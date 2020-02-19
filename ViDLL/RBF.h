@@ -7,7 +7,7 @@ extern "C" {
 	};
 
 	__declspec(dllexport) RBF* createRBFModel(double* dataset, int datasetSize, int dimensions);
-	__declspec(dllexport) void trainNaiveRBF(RBF* model, int datasetSize, double* expectedOutputs, int dimensions, int gamma);
+	__declspec(dllexport) void trainNaiveRBF(RBF* model, int datasetSize, double* expectedOutputs, int dimensions, double gamma);
 	__declspec(dllexport) int predictRBFClassification(RBF* model, double gamma, double* inputs, int dimensions, int modelSize);
 	__declspec(dllexport) double predictRBFRegression(RBF* model, double gamma, double* inputs, int dimensions, int modelSize);
 }

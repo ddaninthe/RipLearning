@@ -19,7 +19,7 @@ RBF* createRBFModel(double* dataset, int datasetSize, int dimensions) {
 	return model;
 }
 
-void trainNaiveRBF(RBF* model, int datasetSize, double* expectedOutputs, int dimensions, int gamma) {
+void trainNaiveRBF(RBF* model, int datasetSize, double* expectedOutputs, int dimensions, double gamma) {
 	MatrixXd phi(datasetSize, datasetSize);
 	VectorXd Y(datasetSize);
 
