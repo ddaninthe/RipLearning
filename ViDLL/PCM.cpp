@@ -81,7 +81,7 @@ void trainPCMClassification(MLP* model, double* dataset, double* predict, int da
 		for (int l = 1; l < model->size; l++) {
 			for (int j = 1; j < model->d[l]; j++) {
 				for (int i = 0; i < model->d[l-1]; i++) {
-					model->w[l][i][j] -= (learning * model->x[l - 1][i] * model->delta[l][j];
+					model->w[l][i][j] -= (learning * model->x[l - 1][i] * model->delta[l][j]);
 				}
 			}
 		}
@@ -103,7 +103,7 @@ void trainPCMRegression(MLP* model, double* dataset, double* predict, int dataSi
 		int l = model->size;
 		//delta initial
 		for (int j = 1; j < model->d[l]; j++) {
-			model->delta[l][j] = (model->x[l][j] - predict[j])
+			model->delta[l][j] = (model->x[l][j] - predict[j]);
 		}
 
 		//delta intermediaire
@@ -121,7 +121,7 @@ void trainPCMRegression(MLP* model, double* dataset, double* predict, int dataSi
 		for (int l = 1; l < model->size; l++) {
 			for (int j = 1; j < model->d[l]; j++) {
 				for (int i = 0; i < model->d[l - 1]; i++) {
-					model->w[l][i][j] -= (learning * model->x[l - 1][i] * model->delta[l][j];
+					model->w[l][i][j] -= (learning * model->x[l - 1][i] * model->delta[l][j]);
 				}
 			}
 		}
