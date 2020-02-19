@@ -21,7 +21,7 @@ double* createLinearModel(int nbInputs) {
  * @param modelSize the size of the model, minus the bias/predict
  * @param nbIter the number of iteration
  */
-void trainLinearClassification(double* dataset, int datasetSize, int* expectedOutputs, double* model, int modelSize, double nbIter, double learning) {
+void trainLinearClassification(double* dataset, int datasetSize, double* expectedOutputs, double* model, int modelSize, double nbIter, double learning) {
 	for (int i = 0; i < nbIter; i++) {
 		int index = rand() % datasetSize;
 		double *data = dataset + index * modelSize;

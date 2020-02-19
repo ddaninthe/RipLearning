@@ -2,7 +2,7 @@
 
 extern "C" {
 	typedef struct MLP{
-		double** deltas;
+		double** delta;
 		double** x;
 		double*** w;
 		int* d;

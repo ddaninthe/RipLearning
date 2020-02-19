@@ -50,9 +50,6 @@ double** fillX(int* layout, int l) {
 
 void trainPCMClassification(MLP* model, double* dataset, double* predict, int dataSize, int nbIter) {
 
-	double* predict;
-	
-	
 	for (int i = 0; i < nbIter; i++) {
 		int random = rand() % dataSize;
 		double* data = dataset + random * (model->size);
@@ -69,9 +66,9 @@ void trainPCMClassification(MLP* model, double* dataset, double* predict, int da
 		//delta intermediaire
 		for (int l = model->size; l > 0; l--) {
 			for (int i = 1; i < model->d[l-1]; i++) {
-				double sum;
+				double sum = 0;
 				for (int j = 1; j < model->d[l]; j++)
-					sum += model->w[l][i][j] * model->delta[l][j]
+					sum += model->w[l][i][j] * model->delta[l][j];
 			}
 		}
 	}
@@ -86,7 +83,7 @@ double* predictPCMClassification(MLP* model, double* data) {
 	for (int j = 1; j < model->d[0] + 1; j++) {
 		model->x[0][j] = data[j];
 	}
-	double sum;
+	double sum = 0;
 	for (int l = 1; l < model->size; l++) {
 		for (int j = 1; j < model->d[l] + 1; j++) {
 			
