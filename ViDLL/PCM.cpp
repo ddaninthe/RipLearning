@@ -48,7 +48,7 @@ double** fillX(int* layout, int l) {
 	return array;
 }
 
-void trainPCMClassification(MLP* model, double* dataset, double* predict, int dataSize, int nbIter) {
+void trainPCMClassification(MLP* model, double* dataset, double* predict, int dataSize, int nbIter, double learning) {
 
 	double* predict;
 	
@@ -70,15 +70,62 @@ void trainPCMClassification(MLP* model, double* dataset, double* predict, int da
 		for (int l = model->size; l > 0; l--) {
 			for (int i = 1; i < model->d[l-1]; i++) {
 				double sum;
-				for (int j = 1; j < model->d[l]; j++)
-					sum += model->w[l][i][j] * model->delta[l][j]
+				for (int j = 1; j < model->d[l]; j++){
+					sum += model->w[l][i][j] * model->delta[l][j];
+				}
+				model->delta[l - 1][i] = (1 - pow(model->x[l - 1][i], 2)) * sum;
+			}
+		}
+
+		//update w
+		for (int l = 1; l < model->size; l++) {
+			for (int j = 1; j < model->d[l]; j++) {
+				for (int i = 0; i < model->d[l-1]; i++) {
+					model->w[l][i][j] -= (learning * model->x[l - 1][i] * model->delta[l][j];
+				}
 			}
 		}
 	}
 }
 
-void trainPCMRegression() {
+void trainPCMRegression(MLP* model, double* dataset, double* predict, int dataSize, int nbIter, double learning) {
 
+	double* predict;
+
+
+	for (int i = 0; i < nbIter; i++) {
+		int random = rand() % dataSize;
+		double* data = dataset + random * (model->size);
+
+		//prediction
+		predict = predictPCMClassification(model, data);
+
+		int l = model->size;
+		//delta initial
+		for (int j = 1; j < model->d[l]; j++) {
+			model->delta[l][j] = (model->x[l][j] - predict[j])
+		}
+
+		//delta intermediaire
+		for (int l = model->size; l > 0; l--) {
+			for (int i = 1; i < model->d[l - 1]; i++) {
+				double sum;
+				for (int j = 1; j < model->d[l]; j++) {
+					sum += model->w[l][i][j] * model->delta[l][j];
+				}
+				model->delta[l - 1][i] = (1 - pow(model->x[l - 1][i], 2)) * sum;
+			}
+		}
+
+		//update w
+		for (int l = 1; l < model->size; l++) {
+			for (int j = 1; j < model->d[l]; j++) {
+				for (int i = 0; i < model->d[l - 1]; i++) {
+					model->w[l][i][j] -= (learning * model->x[l - 1][i] * model->delta[l][j];
+				}
+			}
+		}
+	}
 }
 
 double* predictPCMClassification(MLP* model, double* data) {

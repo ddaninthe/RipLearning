@@ -2,16 +2,16 @@
 
 extern "C" {
 	typedef struct MLP{
-		double** deltas;
+		double** delta;
 		double** x;
 		double*** w;
 		int* d;
 		int size;
 	} MLP;
 
-	__declspec(dllexport) MLP * createPCMModel(int* layout);
-	__declspec(dllexport) void trainPCMClassification();
-	__declspec(dllexport) void trainPCMRegression();
+	__declspec(dllexport) MLP* createPCMModel(int* layout, int arraySize);
+	__declspec(dllexport) void trainPCMClassification(MLP* model, double* dataset, double* predict, int dataSize, int nbIter, double learning);
+	__declspec(dllexport) void trainPCMRegression(MLP* model, double* dataset, double* predict, int dataSize, int nbIter, double learning);
 	__declspec(dllexport) double* predictPCMClassification(MLP * model, double* data);
 	__declspec(dllexport) double* predictPCMRegression(MLP * model, double* data);
 }
