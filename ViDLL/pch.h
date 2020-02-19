@@ -9,5 +9,9 @@
 
 // ajouter les en-têtes à précompiler ici
 #include "framework.h"
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+#include <Eigen>
 
 #endif //PCH_H
