@@ -37,15 +37,11 @@ void trainNaiveRBF(RBF* model, int datasetSize, double* expectedOutputs, int dim
 	}
 }
 
-void trainRBFKmeans() {
-
-}
-
-int predictRBFClassification(RBF* model, int gamma, double* inputs, int dimensions, int modelSize) {
+int predictRBFClassification(RBF* model, double gamma, double* inputs, int dimensions, int modelSize) {
 	return predictRBFRegression(model, gamma, inputs, dimensions, modelSize) >= 0 ? 1 : -1;
 }
 
-double predictRBFRegression(RBF* model, int gamma, double* inputs, int dimensions, int modelSize) {
+double predictRBFRegression(RBF* model, double gamma, double* inputs, int dimensions, int modelSize) {
 	double res = 0;
 	for (int i = 0; i < modelSize; i++) {
 		double exponent = RBFExponent(gamma, inputs, model->coordinates[i], dimensions);
@@ -54,7 +50,7 @@ double predictRBFRegression(RBF* model, int gamma, double* inputs, int dimension
 	return res;
 }
 
-double RBFExponent(int gamma, double* inputs, double* X, int dim) {
+double RBFExponent(double gamma, double* inputs, double* X, int dim) {
 	return -gamma * squareMagnitude(inputs, X, dim);
 }
 

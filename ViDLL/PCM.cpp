@@ -12,11 +12,11 @@ MLP* createPCMModel(int* layout, int arraySize) {
 }
 
 double*** fillW(int* layout, int l) {
-	double*** w = new double** [l];
-	int i = 0, j = 0;
+	double*** w = new double**[l];
+	int i, j;
 	for (int a = 1; a < l; a++) {
 		i = layout[a - 1], j = layout[a];
-		w[a] = new double* [i];
+		w[a] = new double*[i];
 		for (int b = 0; b < i; b++) {
 			w[a][b] = new double[j];
 				for (int c = 0; c < j; c++) {
@@ -28,9 +28,9 @@ double*** fillW(int* layout, int l) {
 }
 
 double** fillArrayZero(int* layout, int l) {
-	double** array = new double* [l];
-	int j = 0;
-	for (int a = 1; a < l; a++) {
+	double** array = new double*[l];
+	int j;
+	for (int a = 0; a < l; a++) {
 		j = layout[a];
 		array[a] = new double[j];
 	}
@@ -38,18 +38,17 @@ double** fillArrayZero(int* layout, int l) {
 }
 
 double** fillX(int* layout, int l) {
-	double** array = new double* [l];
-	int j = 0;
-	for (int a = 1; a < l; a++) {
+	double** array = new double*[l];
+	int j;
+	for (int a = 0; a < l; a++) {
 		j = layout[a];
-		array[a] = new double[j+1];
+		array[a] = new double[j + 1];
 		array[a][0] = 1.0;
 	}
 	return array;
 }
 
 void trainPCMClassification(MLP* model, double* dataset, double* expect, int dataSize, int nbIter, double learning) {
-	
 	for (int i = 0; i < nbIter; i++) {
 		int random = rand() % dataSize;
 		double* data = dataset + random * (model->d[0]);
@@ -60,7 +59,7 @@ void trainPCMClassification(MLP* model, double* dataset, double* expect, int dat
 		int l = model->size;
 		//delta initial
 		for (int j = 1; j < model->d[l]; j++) {
-			model->delta[l][j] = (1 - pow(model->x[l][j], 2)) * (model->x[l][j] - expect[random * model->d[model->size] + j]);
+			model->delta[l][j] = (1 - pow(model->x[l][j], 2)) * (model->x[l][j] - expect[random * model->d[model->size - 1] + j]);
 		}
 
 		//delta intermediaire
@@ -86,19 +85,17 @@ void trainPCMClassification(MLP* model, double* dataset, double* expect, int dat
 }
 
 void trainPCMRegression(MLP* model, double* dataset, double* expect, int dataSize, int nbIter, double learning) {
-
-
 	for (int i = 0; i < nbIter; i++) {
 		int random = rand() % dataSize;
 		double* data = dataset + random * (model->d[0]);
 
 		//prediction
-		predictPCMClassification(model, data);
+		predictPCMRegression(model, data);
 
 		int l = model->size;
 		//delta initial
 		for (int j = 1; j < model->d[l]; j++) {
-			model->delta[l][j] = (1 - pow(model->x[l][j], 2)) * (model->x[l][j] - expect[random * model->d[model->size] + j]);
+			model->delta[l][j] = (1 - pow(model->x[l][j], 2)) * (model->x[l][j] - expect[random * model->d[model->size - 1] + j]);
 		}
 
 		//delta intermediaire
@@ -138,8 +135,13 @@ double* predictPCMClassification(MLP* model, double* data) {
 			model->x[l][j] = tanh(sum);
 		}	
 	}
+
 	// ne pas retourner le premier !
-	return model->x[model->size].slice(1);
+	double* results = new double[model->size - 1];
+	for (int i = 0; i < model->size - 1; i++) {
+		results[i] = model->x[model->size - 1][i + 1];
+	}
+	return results;
 }
 
 double* predictPCMRegression(MLP* model, double* data) {
@@ -148,7 +150,7 @@ double* predictPCMRegression(MLP* model, double* data) {
 		model->x[0][j] = data[j];
 	}
 
-	for (int l = 1; l < model->size-1; l++) {
+	for (int l = 1; l < model->size - 1; l++) {
 		for (int j = 1; j < model->d[l] + 1; j++) {
 			double sum = 0.0;
 			for (int i = 0; i < model->d[l]; i++) {
@@ -157,22 +159,13 @@ double* predictPCMRegression(MLP* model, double* data) {
 			model->x[l][j] = tanh(sum);
 		}
 	}
-	for (int j = 1; j < model->d[model->size] + 1; j++) {
+	for (int j = 1; j < model->d[model->size - 1] + 1; j++) {
 		double sum = 0.0;
-		for (int i = 0; i < model->d[model->size]; i++) {
-			sum += model->x[model->size - 1][i] * model->w[model->size][i][j];
+		for (int i = 0; i < model->d[model->size - 1]; i++) {
+			sum += model->x[model->size - 1][i] * model->w[model->size - 1][i][j];
 		}
-		model->x[model->size][j] = sum;
+		model->x[model->size - 1][j] = sum;
 	}
 
-	return model->x[model->size];
+	return model->x[model->size - 1];
 }
-
-MLP* t_createModel() {
-	int layout[] = { 3,2,4,1 };
-	int arraySize = 4;
-	MLP* model = createPCMModel(layout, arraySize);
-	return model;
-}
-
-void
