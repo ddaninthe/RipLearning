@@ -3,17 +3,17 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
+public class RegressionScript : MonoBehaviour
 {
 
     [DllImport("ViDLL.dll")]
     private static extern IntPtr createLinearModel(int nbInputs);
 
     [DllImport("ViDLL.dll")]
-    private static extern IntPtr trainLinearClassification(double[] dataset, int datasetSize, double[] expectedOutputs, IntPtr model, int modelSize, double nbIter, double learning);
+    private static extern IntPtr trainLinearRegression(double[] dataset, int datasetSize, double[] expectedOutputs, IntPtr model, int modelSize);
 
     [DllImport("ViDLL.dll")]
-    private static extern int predictLinearClassification(IntPtr model, int size, double[] inputs);
+    private static extern double predictLinearRegression(IntPtr model, int size, double[] inputs);
 
     [DllImport("ViDLL.dll")]
     private static extern void clear(IntPtr model);
@@ -36,7 +36,7 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
                 testSpheres[i].position.z);
         }
     }
-    
+
     public void CreateModel()
     {
         ReleaseModel();
@@ -56,16 +56,16 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
             trainingOutputs[i] = trainingSpheres[i].position.y;
         }
         
-        trainLinearClassification(trainingInputs, trainingSpheres.Length, trainingOutputs, model, 2, 10000, 0.0001);
-
+        trainLinearRegression(trainingInputs, trainingSpheres.Length, trainingOutputs, model, 2);
+        
     }
 
     public void PredictOnTestSpheres()
     {
         for (int i = 0; i < testSpheres.Length; i++)
         {
-            var input = new double[] {testSpheres[i].position.x, testSpheres[i].position.z};
-            var predictedY = predictLinearClassification(model, 2, input);
+            var input = new double[] { testSpheres[i].position.x, testSpheres[i].position.z };
+            var predictedY = predictLinearRegression(model, 2, input);
             testSpheres[i].position = new Vector3(
                 testSpheres[i].position.x,
                 Convert.ToSingle(predictedY),

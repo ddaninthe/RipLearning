@@ -3,17 +3,25 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
+public class MLPSepLinear2D3EMulticlassScript : MonoBehaviour
 {
+    /*
+     MLP* createPCMModel(int* layout, int arraySize);
+    void trainPCMClassification(MLP* model, double* dataset, double* predict, int dataSize, int nbIter, double learning);
+    void trainPCMRegression(MLP* model, double* dataset, double* predict, int dataSize, int nbIter, double learning);
+    double* predictPCMClassification(MLP * model, double* data);
+    double* predictPCMRegression(MLP * model, double* data);
+     */
+
 
     [DllImport("ViDLL.dll")]
-    private static extern IntPtr createLinearModel(int nbInputs);
+    private static extern IntPtr createPCMModel(int[] layout, int arraySize);
 
     [DllImport("ViDLL.dll")]
-    private static extern IntPtr trainLinearClassification(double[] dataset, int datasetSize, double[] expectedOutputs, IntPtr model, int modelSize, double nbIter, double learning);
+    private static extern void trainPCMClassification(IntPtr model, double[] dataset, double[] expectedOutputs, int datasetSize, double nbIter, double learning);
 
     [DllImport("ViDLL.dll")]
-    private static extern int predictLinearClassification(IntPtr model, int size, double[] inputs);
+    private static extern double[] predictPCMClassification(IntPtr model, double[] data);
 
     [DllImport("ViDLL.dll")]
     private static extern void clear(IntPtr model);
@@ -23,6 +31,8 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
 
     private double[] trainingInputs;
     private double[] trainingOutputs;
+
+    private int[] layout;
 
     private IntPtr model;
 
@@ -40,8 +50,9 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
     public void CreateModel()
     {
         ReleaseModel();
-        model = createLinearModel(3);
-        PredictOnTestSpheres();
+        layout = new int[2] { 2, 1 };
+        model = createPCMModel(layout, layout.Length);
+        //PredictOnTestSpheres();
     }
 
     public void Train()
@@ -53,10 +64,11 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
         {
             trainingInputs[2 * i] = trainingSpheres[i].position.x;
             trainingInputs[2 * i + 1] = trainingSpheres[i].position.z;
+            //Debug.Log("training spheres type numero " + i + " = " + trainingSpheres[i].GetType());
             trainingOutputs[i] = trainingSpheres[i].position.y;
         }
         
-        trainLinearClassification(trainingInputs, trainingSpheres.Length, trainingOutputs, model, 2, 10000, 0.0001);
+        trainPCMClassification(model, trainingInputs, trainingOutputs, trainingSpheres.Length, 10000, 0.0001);
 
     }
 
@@ -65,7 +77,7 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
         for (int i = 0; i < testSpheres.Length; i++)
         {
             var input = new double[] {testSpheres[i].position.x, testSpheres[i].position.z};
-            var predictedY = predictLinearClassification(model, 2, input);
+            var predictedY = predictPCMClassification(model, input);
             testSpheres[i].position = new Vector3(
                 testSpheres[i].position.x,
                 Convert.ToSingle(predictedY),

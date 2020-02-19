@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
+public class TransformNonLinearXORScript : MonoBehaviour
 {
 
     [DllImport("ViDLL.dll")]
@@ -41,7 +41,14 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
     {
         ReleaseModel();
         model = createLinearModel(3);
-        PredictOnTestSpheres();
+        for (var i = 0; i < trainingSpheres.Length; i++)
+        {
+            trainingSpheres[i].position = new Vector3(
+                trainingSpheres[i].position.x,
+                trainingSpheres[i].position.y,
+                trainingSpheres[i].position.y >= 1 ? Math.Abs(trainingSpheres[i].position.z) : -(Math.Abs(trainingSpheres[i].position.z)));
+        }
+        //PredictOnTestSpheres();
     }
 
     public void Train()
@@ -55,9 +62,9 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
             trainingInputs[2 * i + 1] = trainingSpheres[i].position.z;
             trainingOutputs[i] = trainingSpheres[i].position.y;
         }
-        
-        trainLinearClassification(trainingInputs, trainingSpheres.Length, trainingOutputs, model, 2, 10000, 0.0001);
 
+        trainLinearClassification(trainingInputs, trainingSpheres.Length, trainingOutputs, model, 2, 10000, 0.0001);
+        
     }
 
     public void PredictOnTestSpheres()

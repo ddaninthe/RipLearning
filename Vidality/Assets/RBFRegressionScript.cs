@@ -3,17 +3,17 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
+public class RBFRegressionScript : MonoBehaviour
 {
 
     [DllImport("ViDLL.dll")]
-    private static extern IntPtr createLinearModel(int nbInputs);
+    private static extern IntPtr createRBFModel(double[] dataset, int datasetSize, int dimensions);
 
     [DllImport("ViDLL.dll")]
-    private static extern IntPtr trainLinearClassification(double[] dataset, int datasetSize, double[] expectedOutputs, IntPtr model, int modelSize, double nbIter, double learning);
+    private static extern IntPtr trainNaiveRBF(IntPtr model, int datasetSize, double[] expectedOutputs, int dimensions, double gamma);
 
     [DllImport("ViDLL.dll")]
-    private static extern int predictLinearClassification(IntPtr model, int size, double[] inputs);
+    private static extern double predictRBFRegression(IntPtr model, double gamma, double[] inputs, int dimensions, int modelSize);
 
     [DllImport("ViDLL.dll")]
     private static extern void clear(IntPtr model);
@@ -23,6 +23,9 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
 
     private double[] trainingInputs;
     private double[] trainingOutputs;
+
+    private double gamma = 10.0;
+    private int dimensions = 2;
 
     private IntPtr model;
 
@@ -40,8 +43,17 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
     public void CreateModel()
     {
         ReleaseModel();
-        model = createLinearModel(3);
-        PredictOnTestSpheres();
+
+        trainingInputs = new double[trainingSpheres.Length * 2];
+
+        for (int i = 0; i < trainingSpheres.Length; i++)
+        {
+            trainingInputs[2 * i] = trainingSpheres[i].position.x;
+            trainingInputs[2 * i + 1] = trainingSpheres[i].position.z;
+        }
+
+        model = createRBFModel(trainingInputs, trainingSpheres.Length, 2);
+        //PredictOnTestSpheres();
     }
 
     public void Train()
@@ -56,7 +68,7 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
             trainingOutputs[i] = trainingSpheres[i].position.y;
         }
         
-        trainLinearClassification(trainingInputs, trainingSpheres.Length, trainingOutputs, model, 2, 10000, 0.0001);
+        trainNaiveRBF(model, trainingSpheres.Length, trainingOutputs, dimensions, gamma);
 
     }
 
@@ -65,7 +77,7 @@ public class RetrieveAndModifySpherePositionsScript : MonoBehaviour
         for (int i = 0; i < testSpheres.Length; i++)
         {
             var input = new double[] {testSpheres[i].position.x, testSpheres[i].position.z};
-            var predictedY = predictLinearClassification(model, 2, input);
+            var predictedY = predictRBFRegression(model, gamma, input, dimensions, trainingSpheres.Length);
             testSpheres[i].position = new Vector3(
                 testSpheres[i].position.x,
                 Convert.ToSingle(predictedY),
