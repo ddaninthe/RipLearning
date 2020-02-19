@@ -46,15 +46,12 @@ void trainLinearClassification(double* dataset, int datasetSize, double* expecte
  */
 void trainLinearRegression(double* dataset, int datasetSize, double* expectedOutputs, double* model, int modelSize) {
 	MatrixXd X(datasetSize, modelSize + 1);
+	MatrixXd Y(datasetSize, 1);
 	for (int i = 0; i < datasetSize; i++) {
 		X(i, modelSize) = 1;
 		for (int j = 0; j < modelSize; j++) {
 			X(i, j) = dataset[2 * i + j];
 		}
-	}
-
-	MatrixXd Y(datasetSize, 1);
-	for (int i = 0; i < datasetSize; i++) {
 		Y(i, 0) = expectedOutputs[i];
 	}
 
