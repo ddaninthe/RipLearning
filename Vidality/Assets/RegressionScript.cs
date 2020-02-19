@@ -10,7 +10,7 @@ public class RegressionScript : MonoBehaviour
     private static extern IntPtr createLinearModel(int nbInputs);
 
     [DllImport("ViDLL.dll")]
-    private static extern IntPtr trainLinearRegression(double[] dataset, int dataSize, double[] expectedOutputs, IntPtr model, int modelSize, double iterNumber, double learning);
+    private static extern IntPtr trainLinearRegression(double[] dataset, int datasetSize, double[] expectedOutputs, IntPtr model, int modelSize);
 
     [DllImport("ViDLL.dll")]
     private static extern double predictLinearRegression(IntPtr model, int size, double[] inputs);
@@ -56,7 +56,7 @@ public class RegressionScript : MonoBehaviour
             trainingOutputs[i] = trainingSpheres[i].position.y;
         }
         
-        trainLinearRegression(trainingInputs, trainingSpheres.Length, trainingOutputs, model, 2, 100000, 0.0001);
+        trainLinearRegression(trainingInputs, trainingSpheres.Length, trainingOutputs, model, 2);
         
     }
 

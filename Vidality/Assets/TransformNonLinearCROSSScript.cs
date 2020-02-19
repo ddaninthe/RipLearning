@@ -10,7 +10,7 @@ public class TransformNonLinearCROSSScript : MonoBehaviour
     private static extern IntPtr createLinearModel(int nbInputs);
 
     [DllImport("ViDLL.dll")]
-    private static extern IntPtr trainLinearClassification(double[] dataset, int dataSize, IntPtr model, int modelSize, double iterNumber, double learning);
+    private static extern IntPtr trainLinearClassification(double[] dataset, int datasetSize, double[] expectedOutputs, IntPtr model, int modelSize, double nbIter, double learning);
 
     [DllImport("ViDLL.dll")]
     private static extern int predictLinearClassification(IntPtr model, int size, double[] inputs);
@@ -53,18 +53,18 @@ public class TransformNonLinearCROSSScript : MonoBehaviour
 
     public void Train()
     {
-        trainingInputs = new double[trainingSpheres.Length * 3];
+        trainingInputs = new double[trainingSpheres.Length * 2];
+        trainingOutputs = new double[trainingSpheres.Length];
 
         for (int i = 0; i < trainingSpheres.Length; i++)
         {
-            trainingInputs[3 * i] = trainingSpheres[i].position.x;
-            trainingInputs[3 * i + 1] = trainingSpheres[i].position.z;
-            trainingInputs[3 * i + 2] = trainingSpheres[i].position.y;
-            //trainingOutputs[i] = trainingSpheres[i].position.y;
+            trainingInputs[2 * i] = trainingSpheres[i].position.x;
+            trainingInputs[2 * i + 1] = trainingSpheres[i].position.z;
+            trainingOutputs[i] = trainingSpheres[i].position.y;
         }
 
-        trainLinearClassification(trainingInputs, trainingSpheres.Length, model, 2, 10000, 0.0001);
-        
+        trainLinearClassification(trainingInputs, trainingSpheres.Length, trainingOutputs, model, 2, 10000, 0.0001);
+
     }
 
     public void PredictOnTestSpheres()
