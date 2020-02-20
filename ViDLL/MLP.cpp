@@ -4,7 +4,11 @@
 
 MLP* createMLPModel(int* layout, int layoutSize) {
 	MLP* model = new MLP();
-	model->layers = layout;
+
+	model->layers = new int[layoutSize];
+	for (int i = 0; i < layoutSize; i++) {
+		model->layers[i] = layout[i];
+	}
 	model->layersCount = layoutSize;
 
 	model->deltas = new double*[layoutSize];

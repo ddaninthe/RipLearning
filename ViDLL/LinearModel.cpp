@@ -105,7 +105,7 @@ double predictLinearRegression(LinearModel* model, int size, double* inputs) {
 	}
 }
 
-void clear(LinearModel* ptr) {
+void clear(void* ptr) {
 	delete[] ptr;
 }
 
