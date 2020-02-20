@@ -41,14 +41,6 @@ public class TransformNonLinearCROSSScript : MonoBehaviour
     {
         ReleaseModel();
         model = createLinearModel(3);
-        /*for (var i = 0; i < trainingSpheres.Length; i++)
-        {
-            trainingSpheres[i].position = new Vector3(
-                Math.Abs(trainingSpheres[i].position.x),
-                trainingSpheres[i].position.y,
-                Math.Abs(trainingSpheres[i].position.z));
-        }*/
-        //PredictOnTestSpheres();
     }
 
     public void Train()
@@ -58,13 +50,6 @@ public class TransformNonLinearCROSSScript : MonoBehaviour
 
         for (int i = 0; i < trainingSpheres.Length; i++)
         {
-            //trainingInputs[2 * i] = Math.Abs(trainingSpheres[i].position.x);
-            //trainingInputs[2 * i + 1] = Math.Abs(trainingSpheres[i].position.z);
-            /*if ((trainingSpheres[i].position.x < 0 && trainingSpheres[i].position.z < 0) || (trainingSpheres[i].position.x >= 0 && trainingSpheres[i].position.z >= 0))
-            {
-                trainingOutputs[i] = trainingSpheres[i].position.y * -1;
-            }
-            else trainingOutputs[i] = trainingSpheres[i].position.y;*/
             trainingInputs[2 * i] = trainingSpheres[i].position.y;
             trainingInputs[2 * i + 1] = trainingSpheres[i].position.y;
             trainingOutputs[i] = trainingSpheres[i].position.y;
