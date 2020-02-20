@@ -123,7 +123,7 @@ void trainPCMRegression(MLP* model, double* dataset, double* expect, int dataSiz
 double* predictPCMClassification(MLP* model, double* data) {
 	// add input in l=0
 	for (int j = 1; j < model->d[0] + 1; j++) {
-		model->x[0][j] = data[j];
+		model->x[0][j] = data[j-1];
 	}
 	double sum = 0;
 	for (int l = 1; l < model->size; l++) {
@@ -147,7 +147,7 @@ double* predictPCMClassification(MLP* model, double* data) {
 double* predictPCMRegression(MLP* model, double* data) {
 	// add input in l=0
 	for (int j = 1; j < model->d[0] + 1; j++) {
-		model->x[0][j] = data[j];
+		model->x[0][j] = data[j-1];
 	}
 
 	for (int l = 1; l < model->size - 1; l++) {
