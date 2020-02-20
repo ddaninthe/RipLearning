@@ -1,7 +1,10 @@
 #include "PCM.h"
-#include "pch.h"
+
+using namespace std;
 
 MLP* createPCMModel(int* layout, int arraySize) {
+
+
 	MLP* model = new MLP();
 	model->d = layout;
 	model->w = fillW(layout, arraySize);
@@ -12,15 +15,15 @@ MLP* createPCMModel(int* layout, int arraySize) {
 }
 
 double*** fillW(int* layout, int l) {
-	double*** w = new double**[l];
+	double*** w = new double** [l];
 	int i, j;
 	for (int a = 1; a < l; a++) {
 		i = layout[a - 1], j = layout[a];
-		w[a] = new double*[i];
+		w[a] = new double* [i];
 		for (int b = 0; b < i; b++) {
 			w[a][b] = new double[j];
-				for (int c = 0; c < j; c++) {
-					w[a][b][c] = ((rand() / (double)RAND_MAX) - 0.5) * 2;
+			for (int c = 0; c < j; c++) {
+				w[a][b][c] = ((rand() / (double)RAND_MAX) - 0.5) * 2;
 			}
 		}
 	}
@@ -28,7 +31,7 @@ double*** fillW(int* layout, int l) {
 }
 
 double** fillArrayZero(int* layout, int l) {
-	double** array = new double*[l];
+	double** array = new double* [l];
 	int j;
 	for (int a = 0; a < l; a++) {
 		j = layout[a];
@@ -38,7 +41,7 @@ double** fillArrayZero(int* layout, int l) {
 }
 
 double** fillX(int* layout, int l) {
-	double** array = new double*[l];
+	double** array = new double* [l];
 	int j;
 	for (int a = 0; a < l; a++) {
 		j = layout[a];
@@ -55,7 +58,7 @@ void trainPCMClassification(MLP* model, double* dataset, double* expect, int dat
 
 		//prediction
 		predictPCMClassification(model, data);
-		
+
 		int l = model->size;
 		//delta initial
 		for (int j = 1; j < model->d[l]; j++) {
@@ -64,9 +67,9 @@ void trainPCMClassification(MLP* model, double* dataset, double* expect, int dat
 
 		//delta intermediaire
 		for (int l = model->size; l > 0; l--) {
-			for (int i = 1; i < model->d[l-1]; i++) {
+			for (int i = 1; i < model->d[l - 1]; i++) {
 				double sum = 0;
-				for (int j = 1; j < model->d[l]; j++){
+				for (int j = 1; j < model->d[l]; j++) {
 					sum += model->w[l][i][j] * model->delta[l][j];
 				}
 				model->delta[l - 1][i] = (1 - pow(model->x[l - 1][i], 2)) * sum;
@@ -76,7 +79,7 @@ void trainPCMClassification(MLP* model, double* dataset, double* expect, int dat
 		//update w
 		for (int l = 1; l < model->size; l++) {
 			for (int j = 1; j < model->d[l]; j++) {
-				for (int i = 0; i < model->d[l-1]; i++) {
+				for (int i = 0; i < model->d[l - 1]; i++) {
 					model->w[l][i][j] -= (learning * model->x[l - 1][i] * model->delta[l][j]);
 				}
 			}
@@ -122,10 +125,35 @@ void trainPCMRegression(MLP* model, double* dataset, double* expect, int dataSiz
 
 double* predictPCMClassification(MLP* model, double* data) {
 	// add input in l=0
-	for (int j = 1; j < model->d[0] + 1; j++) {
-		model->x[0][j] = data[j-1];
+	cout << "starting predict\n";
+
+	cout << "Data : ";
+	for (int i = 0; i < 3; i++) {
+		cout << data[i] << " ";
 	}
-	double sum = 0;
+	cout << "\n";
+
+	cout << "Size : " << model->size << "\n";
+
+	cout << "d : ";
+	for (int i = 0; i < model->size; i++) {
+		cout << model->d[i] << " ";
+	}
+	cout << "\n";
+
+	for (int j = 1; j < model->d[0] + 1; j++) {
+		cout << model->x[0][j] << "  :  ";
+		cout << data[j - 1] << "\n";
+		model->x[0][j] = data[j - 1];
+	}
+
+	cout << "x0 : ";
+	for (int j = 0; j < model->d[0] + 1; j++) {
+		cout << model->x[0] << " ";
+	}
+	cout << "\n";
+
+	double sum = 0.0;
 	for (int l = 1; l < model->size; l++) {
 		for (int j = 1; j < model->d[l] + 1; j++) {
 			sum = 0.0;
@@ -133,7 +161,7 @@ double* predictPCMClassification(MLP* model, double* data) {
 				sum += model->x[l - 1][i] * model->w[l][i][j];
 			}
 			model->x[l][j] = tanh(sum);
-		}	
+		}
 	}
 
 	// ne pas retourner le premier !
@@ -147,12 +175,12 @@ double* predictPCMClassification(MLP* model, double* data) {
 double* predictPCMRegression(MLP* model, double* data) {
 	// add input in l=0
 	for (int j = 1; j < model->d[0] + 1; j++) {
-		model->x[0][j] = data[j-1];
+		model->x[0][j] = data[j - 1];
 	}
-
+	double sum = 0.0;
 	for (int l = 1; l < model->size - 1; l++) {
 		for (int j = 1; j < model->d[l] + 1; j++) {
-			double sum = 0.0;
+			sum = 0.0;
 			for (int i = 0; i < model->d[l]; i++) {
 				sum += model->x[l - 1][i] * model->w[l][i][j];
 			}
@@ -160,7 +188,7 @@ double* predictPCMRegression(MLP* model, double* data) {
 		}
 	}
 	for (int j = 1; j < model->d[model->size - 1] + 1; j++) {
-		double sum = 0.0;
+		sum = 0.0;
 		for (int i = 0; i < model->d[model->size - 1]; i++) {
 			sum += model->x[model->size - 1][i] * model->w[model->size - 1][i][j];
 		}
@@ -168,4 +196,46 @@ double* predictPCMRegression(MLP* model, double* data) {
 	}
 
 	return model->x[model->size - 1];
+}
+
+MLP* t_createModel() {
+	int layout[] = { 3,4,5,1 };
+	int size = 4;
+
+	MLP* model = createPCMModel(layout, size);
+
+	cout << "Model :\n";
+	cout << "  Mode->d : [ ";
+	for (int i = 0; i < model->size; i++) {
+		if (i != model->size - 1) {
+			cout << model->d[i] << ",";
+		}
+		else {
+			cout << model->d[i];
+		}
+		
+	}
+	cout << " ]\n";
+
+	cout << "  W : " << model->w[1][1][1] << "\n";
+
+	return model;
+}
+
+int main() {
+	MLP* model = t_createModel();
+
+	cout << "d : ";
+	for (int i = 0; i < model->size; i++) {
+		cout << model->d[i] << " ";
+	}
+	cout << "\n";
+
+	double data[] = { 1.1, 0.3, -0.4 };
+
+	double* retour = predictPCMClassification(model, data);
+
+	cout << "Return : " << retour[0] << "\n\n";
+
+	return 0;
 }
