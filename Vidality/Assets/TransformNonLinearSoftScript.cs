@@ -71,7 +71,7 @@ public class TransformNonLinearSoftScript : MonoBehaviour
             {
                 if ((testSpheres[i].position.x == trainingSpheres[j].position.x) && (testSpheres[i].position.z == trainingSpheres[j].position.z))
                 {
-                    inputx = inputz = trainingSpheres[i].position.y;
+                    inputx = inputz = trainingSpheres[j].position.y;
                     break;
                 }
             }
