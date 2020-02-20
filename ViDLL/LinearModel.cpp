@@ -5,11 +5,13 @@
 
 using namespace Eigen;
 
-double* createLinearModel(int nbInputs) {
-	auto model = new double[nbInputs + 1];
+LinearModel* createLinearModel(int nbInputs) {
+	LinearModel* model = new LinearModel();
+	model->weights = new double[nbInputs + 1];
 	for (int i = 0; i < nbInputs + 1; i++) {
-		model[i] = ((rand() / (double) RAND_MAX) - 0.5) * 2;
+		model->weights[i] = ((rand() / (double) RAND_MAX) - 0.5) * 2;
 	}
+	model->isLinear = false;
 	return model;
 }
 
@@ -21,7 +23,7 @@ double* createLinearModel(int nbInputs) {
  * @param modelSize the size of the model, minus the bias/predict
  * @param nbIter the number of iteration
  */
-void trainLinearClassification(double* dataset, int datasetSize, double* expectedOutputs, double* model, int modelSize, double nbIter, double learning) {
+void trainLinearClassification(double* dataset, int datasetSize, double* expectedOutputs, LinearModel* model, int modelSize, double nbIter, double learning) {
 	for (int i = 0; i < nbIter; i++) {
 		int index = rand() % datasetSize;
 		double *data = dataset + index * modelSize;
@@ -29,9 +31,9 @@ void trainLinearClassification(double* dataset, int datasetSize, double* expecte
 		int g = predictLinearClassification(model, modelSize, data);
 		double modif = learning * (expectedOutputs[index] - g);
 
-		model[modelSize] += modif;
+		model->weights[modelSize] += modif;
 		for (int k = 0; k < modelSize; k++) {
-			model[k] += modif * data[k];
+			model->weights[k] += modif * data[k];
 		}
 	}
 }
@@ -44,7 +46,32 @@ void trainLinearClassification(double* dataset, int datasetSize, double* expecte
  * @param modelSize the size of the model, minus the bias/predict
  * @param nbIter the number of iteration
  */
-void trainLinearRegression(double* dataset, int datasetSize, double* expectedOutputs, double* model, int modelSize) {
+void trainLinearRegression(double* dataset, int datasetSize, double* expectedOutputs, LinearModel* model, int modelSize) {
+	// Detect same line
+	if (datasetSize >= 2 && modelSize == 2) {
+		bool linear = true;
+
+		double* ab = solve(dataset[0], dataset[1], dataset[2], dataset[3]);
+		double a = ab[0], b = ab[1];
+
+		double x, y;
+		for (int i = 2; i < datasetSize; i++) {
+			x = dataset[2 * i];
+			y = dataset[2 * i + 1];
+			if (!equals(y, a * x + b)) {
+				linear = false;
+				break;
+			}
+		}
+
+		if (linear) {
+			model->a = a;
+			model->b = b;
+			model->isLinear = true;
+			return;
+		}
+	}
+
 	MatrixXd X(datasetSize, modelSize + 1);
 	MatrixXd Y(datasetSize, 1);
 	for (int i = 0; i < datasetSize; i++) {
@@ -57,22 +84,38 @@ void trainLinearRegression(double* dataset, int datasetSize, double* expectedOut
 
 	MatrixXd W = ((X.transpose() * X).inverse() * X.transpose()) * Y;
 	for (int i = 0; i < W.rows(); i++) {
-		model[i] = W(i, 0);
+		model->weights[i] = W(i, 0);
 	}
 }
 
-int predictLinearClassification(double* model, int size, double* inputs) {
+int predictLinearClassification(LinearModel* model, int size, double* inputs) {
 	return predictLinearRegression(model, size, inputs) >= 0 ? 1 : -1;
 }
 
-double predictLinearRegression(double* model, int size, double* inputs) {
-	double res = model[size];
-	for (int i = 0; i < size; i++) {
-		res += model[i] * inputs[i];
+double predictLinearRegression(LinearModel* model, int size, double* inputs) {
+	if (model->isLinear) {
+		return model->a * inputs[0] + model->b;
 	}
-	return res;
+	else {
+		double res = model->weights[size];
+		for (int i = 0; i < size; i++) {
+			res += model->weights[i] * inputs[i];
+		}
+		return res;
+	}
 }
 
-void clear(double* ptr) {
+void clear(LinearModel* ptr) {
 	delete[] ptr;
+}
+
+double* solve(double x1, double y1, double x2, double y2) {
+	double a = (y1 - y2) / (x1 - x2);
+	double b = y1 - (a * x1);
+	return new double[2]{ a, b };
+}
+
+// Check double are equals
+bool equals(double a, double b) {
+	return abs(a - b) < pow(10, -6);
 }
