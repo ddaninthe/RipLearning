@@ -18,7 +18,7 @@ public class MLPSepLinear2D3EScript : MonoBehaviour
     private static extern IntPtr createMLPModel(int[] layout, int arraySize);
 
     [DllImport("ViDLL.dll")]
-    private static extern void trainPCMClassification(IntPtr model, double[] dataset, double[] expectedOutputs, int datasetSize, double nbIter, double learning);
+    private static extern void trainMLPClassification(IntPtr model, double[] dataset, double[] expectedOutputs, int datasetSize, int iteractions, double alpha);
 
     [DllImport("ViDLL.dll")]
     private static extern IntPtr predictMLPClassification(IntPtr model, double[] data);
@@ -66,8 +66,8 @@ public class MLPSepLinear2D3EScript : MonoBehaviour
             trainingInputs[2 * i + 1] = trainingSpheres[i].position.z;
             trainingOutputs[i] = trainingSpheres[i].position.y;
         }
-        
-        trainPCMClassification(model, trainingInputs, trainingOutputs, trainingSpheres.Length, 10000, 0.0001);
+
+        trainMLPClassification(model, trainingInputs, trainingOutputs, trainingSpheres.Length, 100, 0.01);
 
     }
 
