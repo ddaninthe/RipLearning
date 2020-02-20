@@ -2896,7 +2896,7 @@ GameObject:
   - component: {fileID: 249792837}
   - component: {fileID: 249792836}
   m_Layer: 0
-  m_Name: TrainingSphere
+  m_Name: TrainingSphere1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2961,7 +2961,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &250756520
 GameObject:
@@ -10775,8 +10775,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trainingSpheres:
-  - {fileID: 249792838}
   - {fileID: 1976272432}
+  - {fileID: 249792838}
   - {fileID: 1124087323}
   testSpheres:
   - {fileID: 988659570}
@@ -16462,7 +16462,7 @@ GameObject:
   - component: {fileID: 1976272431}
   - component: {fileID: 1976272430}
   m_Layer: 0
-  m_Name: TrainingSphere1
+  m_Name: TrainingSphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16527,7 +16527,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1980697749
 GameObject:

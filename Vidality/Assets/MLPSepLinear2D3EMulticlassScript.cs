@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -21,7 +22,7 @@ public class MLPSepLinear2D3EMulticlassScript : MonoBehaviour
     private static extern void trainPCMClassification(IntPtr model, double[] dataset, double[] expectedOutputs, int datasetSize, double nbIter, double learning);
 
     [DllImport("ViDLL.dll")]
-    private static extern double[] predictPCMClassification(IntPtr model, double[] data);
+    private static extern IntPtr predictPCMClassification(IntPtr model, double[] data);
 
     [DllImport("ViDLL.dll")]
     private static extern void clear(IntPtr model);
@@ -40,48 +41,74 @@ public class MLPSepLinear2D3EMulticlassScript : MonoBehaviour
     {
         for (var i = 0; i < testSpheres.Length; i++)
         {
-            testSpheres[i].position = new Vector3(
-                testSpheres[i].position.x,
-                0f,
-                testSpheres[i].position.z);
+            testSpheres[i].gameObject.GetComponent<MeshRenderer>().material.color = Color.white;
         }
     }
     
     public void CreateModel()
     {
         ReleaseModel();
-        layout = new int[2] { 2, 1 };
+        layout = new int[2] { 2, 3 };
         model = createPCMModel(layout, layout.Length);
         //PredictOnTestSpheres();
     }
 
     public void Train()
     {
+        string trainingSphereElement;
+        string instanceString = " (Instance)";
+        int expectedLength = layout[layout.Length - 1];
         trainingInputs = new double[trainingSpheres.Length * 2];
-        trainingOutputs = new double[trainingSpheres.Length];
+        trainingOutputs = new double[trainingSpheres.Length * expectedLength];
 
         for (int i = 0; i < trainingSpheres.Length; i++)
         {
             trainingInputs[2 * i] = trainingSpheres[i].position.x;
             trainingInputs[2 * i + 1] = trainingSpheres[i].position.z;
-            //Debug.Log("training spheres type numero " + i + " = " + trainingSpheres[i].GetType());
-            trainingOutputs[i] = trainingSpheres[i].position.y;
+
+            trainingSphereElement = trainingSpheres[i].gameObject.GetComponent<MeshRenderer>().material.name;
+            Debug.Log("training spheres type numero " + i + " = " + trainingSphereElement);
+            for (int j = 0; j < expectedLength; j++) {
+                trainingOutputs[expectedLength * i + j] = -1.0;
+            }
+            if (trainingSphereElement == "red" + instanceString) { trainingOutputs[expectedLength * i] = 1.0; }
+            else if (trainingSphereElement == "blue" + instanceString) { trainingOutputs[expectedLength * i + 1] = 1.0; }
+            else { trainingOutputs[expectedLength * i + 2] = 1.0; }
+
+        }
+
+        for (int i = 0; i < trainingOutputs.Length; i++)
+        {
+            Debug.Log("training Output numero " + i + " : " + trainingOutputs[i]);
         }
         
+
         trainPCMClassification(model, trainingInputs, trainingOutputs, trainingSpheres.Length, 10000, 0.0001);
 
     }
 
     public void PredictOnTestSpheres()
     {
+        int expectedLength = layout[layout.Length - 1];
         for (int i = 0; i < testSpheres.Length; i++)
         {
-            var input = new double[] {testSpheres[i].position.x, testSpheres[i].position.z};
-            var predictedY = predictPCMClassification(model, input);
-            testSpheres[i].position = new Vector3(
-                testSpheres[i].position.x,
-                Convert.ToSingle(predictedY),
-                testSpheres[i].position.z);
+            //testSpheres[i].gameObject.GetComponent<MeshRenderer>().material.color = Color.blue;
+            var input = new double[] { testSpheres[i].position.x, testSpheres[i].position.z };
+            double[] predictedYArray = new double[expectedLength];
+            Marshal.Copy(predictPCMClassification(model, input), predictedYArray, 0, expectedLength);
+            Debug.Log("predictedArray first item -> " + predictedYArray[0]);
+            
+            /*for (int j = 0; j < 3; j++)
+            {
+                predictedYArray[j] = 0.0;
+            }   
+            predictedYArray[i % 3] = 1.0;*/
+
+            double maxValue = predictedYArray.Max();
+            int predictedY = predictedYArray.ToList().IndexOf(maxValue);
+            if (predictedY == 0) { testSpheres[i].gameObject.GetComponent<MeshRenderer>().material.color = Color.red; }
+            else if (predictedY == 1) { testSpheres[i].gameObject.GetComponent<MeshRenderer>().material.color = Color.blue; }
+            else { testSpheres[i].gameObject.GetComponent<MeshRenderer>().material.color = Color.yellow; }
         }
     }
 

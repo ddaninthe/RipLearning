@@ -21,7 +21,7 @@ public class MLPSepLinear2D3EScript : MonoBehaviour
     private static extern void trainPCMClassification(IntPtr model, double[] dataset, double[] expectedOutputs, int datasetSize, double nbIter, double learning);
 
     [DllImport("ViDLL.dll")]
-    private static extern double[] predictPCMClassification(IntPtr model, double[] data);
+    private static extern IntPtr predictPCMClassification(IntPtr model, double[] data);
 
     [DllImport("ViDLL.dll")]
     private static extern void clear(IntPtr model);
@@ -73,10 +73,14 @@ public class MLPSepLinear2D3EScript : MonoBehaviour
 
     public void PredictOnTestSpheres()
     {
+        int expectedLength = layout[layout.Length - 1];
         for (int i = 0; i < testSpheres.Length; i++)
         {
             var input = new double[] {testSpheres[i].position.x, testSpheres[i].position.z};
-            var predictedY = predictPCMClassification(model, input);
+            double[] predictedYArray = new double[expectedLength];
+            Marshal.Copy(predictPCMClassification(model, input), predictedYArray, 0, expectedLength);
+            Debug.Log("predictedArray first item -> " + predictedYArray[0]);
+            double predictedY = predictedYArray[0];
             testSpheres[i].position = new Vector3(
                 testSpheres[i].position.x,
                 Convert.ToSingle(predictedY),

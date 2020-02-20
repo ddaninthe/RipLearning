@@ -41,14 +41,6 @@ public class TransformNonLinearXORScript : MonoBehaviour
     {
         ReleaseModel();
         model = createLinearModel(3);
-        for (var i = 0; i < trainingSpheres.Length; i++)
-        {
-            trainingSpheres[i].position = new Vector3(
-                trainingSpheres[i].position.x,
-                trainingSpheres[i].position.y,
-                trainingSpheres[i].position.y >= 1 ? Math.Abs(trainingSpheres[i].position.z) : -(Math.Abs(trainingSpheres[i].position.z)));
-        }
-        //PredictOnTestSpheres();
     }
 
     public void Train()
@@ -58,8 +50,8 @@ public class TransformNonLinearXORScript : MonoBehaviour
 
         for (int i = 0; i < trainingSpheres.Length; i++)
         {
-            trainingInputs[2 * i] = trainingSpheres[i].position.x;
-            trainingInputs[2 * i + 1] = trainingSpheres[i].position.z;
+            trainingInputs[2 * i] = trainingSpheres[i].position.y;
+            trainingInputs[2 * i + 1] = trainingSpheres[i].position.y;
             trainingOutputs[i] = trainingSpheres[i].position.y;
         }
 
@@ -71,7 +63,9 @@ public class TransformNonLinearXORScript : MonoBehaviour
     {
         for (int i = 0; i < testSpheres.Length; i++)
         {
-            var input = new double[] {testSpheres[i].position.x, testSpheres[i].position.z};
+            double inputx, inputz;
+            inputx = inputz = testSpheres[i].position.x * testSpheres[i].position.z >= 0 ? 1 : -1;
+            var input = new double[] { inputx, inputz };
             var predictedY = predictLinearClassification(model, 2, input);
             testSpheres[i].position = new Vector3(
                 testSpheres[i].position.x,
