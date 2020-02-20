@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class MLPSepLinear2D3EScript : MonoBehaviour
+public class MLPRegressionSepLinear2D3EScript : MonoBehaviour
 {
     /*
      MLP* createPCMModel(int* layout, int arraySize);
@@ -18,13 +18,13 @@ public class MLPSepLinear2D3EScript : MonoBehaviour
     private static extern IntPtr createMLPModel(int[] layout, int arraySize);
 
     [DllImport("ViDLL.dll")]
-    private static extern void trainMLPClassification(IntPtr model, double[] dataset, double[] expectedOutputs, int datasetSize, int iteractions, double alpha);
+    private static extern void trainMLPRegression(IntPtr model, double[] dataset, double[] expectedOutputs, int datasetSize, int iteractions, double alpha);
 
     [DllImport("ViDLL.dll")]
-    private static extern IntPtr predictMLPClassification(IntPtr model, double[] data);
+    private static extern IntPtr predictMLPRegression(IntPtr model, double[] data);
 
     [DllImport("ViDLL.dll")]
-    private static extern IntPtr predictMLPClassification2(IntPtr model, double[] data);
+    private static extern IntPtr predictMLPRegression2(IntPtr model, double[] data);
 
     [DllImport("ViDLL.dll")]
     private static extern void clear(IntPtr model);
@@ -69,8 +69,8 @@ public class MLPSepLinear2D3EScript : MonoBehaviour
             trainingInputs[2 * i + 1] = trainingSpheres[i].position.z;
             trainingOutputs[i] = trainingSpheres[i].position.y;
         }
-
-        trainMLPClassification(model, trainingInputs, trainingOutputs, trainingSpheres.Length, 100, 0.01);
+        
+        trainMLPRegression(model, trainingInputs, trainingOutputs, trainingSpheres.Length, 100, 0.01);
 
     }
 
@@ -81,12 +81,12 @@ public class MLPSepLinear2D3EScript : MonoBehaviour
         {
             var input = new double[] {testSpheres[i].position.x, testSpheres[i].position.z};
             double[] predictedYArray = new double[expectedLength];
-            Marshal.Copy(predictMLPClassification2(model, input), predictedYArray, 0, expectedLength);
+            Marshal.Copy(predictMLPRegression(model, input), predictedYArray, 0, expectedLength);
             Debug.Log("predictedArray first item -> " + predictedYArray[0]);
             double predictedY = predictedYArray[0];
             testSpheres[i].position = new Vector3(
                 testSpheres[i].position.x,
-                Convert.ToSingle(predictedY = predictedY >= 0.0 ? 1.0 : -1.0),
+                Convert.ToSingle(predictedY),
                 testSpheres[i].position.z);
         }
     }
