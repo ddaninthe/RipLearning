@@ -52,7 +52,7 @@ void trainMLPClassification(MLP* model, double* dataset, double* expectedOutputs
 	for (int it = 0; it < iterations; it++) {
 		int index = rand() % datasetSize;
 		double* inputs = dataset + index * model->layers[0]; // Get training inputs
-		double* outputs = expectedOutputs + index * lastLayerSize; // training inputs' expected outputs
+		double* outputs = expectedOutputs + index * lastLayerSize; // training inputs'expected outputs
 
 		// Fill x of last layer
 		double* prediction = predictMLPClassification(model, inputs);
@@ -89,6 +89,52 @@ void trainMLPClassification(MLP* model, double* dataset, double* expectedOutputs
 	}
 }
 
+void trainMLPRegression(MLP* model, double* dataset, double* expectedOutputs, int datasetSize, int iterations, double alpha) {
+	int lastLayerInd = model->layersCount - 1;
+	int lastLayerSize = model->layers[lastLayerInd];
+
+	for (int it = 0; it < iterations; it++) {
+		int index = rand() % datasetSize;
+		double* inputs = dataset + index * model->layers[0]; // Get training inputs
+		double* outputs = expectedOutputs + index * lastLayerSize; // training inputs'expected outputs
+
+		// Fill x of last layer
+		double* prediction = predictMLPClassification(model, inputs);
+		for (int i = 0; i < lastLayerSize; i++) {
+			model->x[lastLayerInd][i + 1] = prediction[i];
+		}
+
+		// Deltas last layer
+		for (int j = 1; j < lastLayerSize + 1; j++) {
+			double x = model->x[lastLayerInd][j];
+			double delta = x - outputs[j - 1];
+			model->deltas[lastLayerInd][j] = delta;
+		}
+
+		// Penultimate to first layers
+		for (int l = lastLayerInd; l >= 0; l--) {
+			for (int i = 0; i < model->layers[l - 1] + 1; i++) {
+				double wd = 0;
+				for (int j = 1; j < model->layers[l] + 1; j++) {
+					wd += model->weights[l][i][j] * model->deltas[l][j];
+				}
+				model->deltas[l - 1][i] = (1 - pow(model->x[l - 1][i], 2)) * wd;
+			}
+		}
+
+		// Update weights
+		for (int l = 1; l <= lastLayerInd; l++) {
+			for (int i = 0; i < model->layers[l - 1] + 1; i++) {
+				for (int j = 1; j < model->layers[l] + 1; j++) {
+					model->weights[l][i][j] -= alpha * model->x[l - 1][i] * model->deltas[l][j];
+				}
+			}
+		}
+	}
+}
+
+
+// Tanh to all result of Regression prediction
 double* predictMLPClassification(MLP* model, double* inputs) {
 	double* res = predictMLPRegression(model, inputs);
 	int size = model->layers[model->layersCount - 1];
