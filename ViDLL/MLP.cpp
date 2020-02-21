@@ -140,12 +140,11 @@ void trainMLPRegression(MLP* model, double* dataset, double* expectedOutputs, in
 }
 
 
-// Tanh to all result of Regression prediction
+// Tanh to all results of Regression prediction
 double* predictMLPClassification(MLP* model, double* inputs) {
 	double* res = predictMLPRegression(model, inputs);
-	int size = model->layers[model->layersCount - 1];
 
-	for (int i = 0; i < size; i++) {
+	for (int i = 0; i < model->layers[model->layersCount - 1]; i++) {
 		res[i] = tanh(res[i]);
 	}
 	return res;
@@ -177,6 +176,7 @@ double* predictMLPRegression(MLP* model, double* inputs) {
 		}
 	}
 
+	// Return last layer without bias
 	double* results = new double[model->layers[model->layersCount - 1]];
 	for (int i = 0; i < model->layers[model->layersCount - 1]; i++) {
 		results[i] = model->x[model->layersCount - 1][i + 1];
