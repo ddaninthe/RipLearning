@@ -77,11 +77,14 @@ public class MLPSepLinear2D3EScript : MonoBehaviour
     public void PredictOnTestSpheres()
     {
         int expectedLength = layout[layout.Length - 1];
+        //IntPtr result = Marshal.AllocHGlobal(expectedLength);
         for (int i = 0; i < testSpheres.Length; i++)
         {
             var input = new double[] {testSpheres[i].position.x, testSpheres[i].position.z};
             double[] predictedYArray = new double[expectedLength];
-            Marshal.Copy(predictMLPClassification2(model, input), predictedYArray, 0, expectedLength);
+            //result = predictMLPClassification(model, input);
+            Marshal.Copy(predictMLPClassification(model, input), predictedYArray, 0, expectedLength);
+            //Marshal.Copy(result, predictedYArray, 0, expectedLength);
             Debug.Log("predictedArray first item -> " + predictedYArray[0]);
             double predictedY = predictedYArray[0];
             testSpheres[i].position = new Vector3(

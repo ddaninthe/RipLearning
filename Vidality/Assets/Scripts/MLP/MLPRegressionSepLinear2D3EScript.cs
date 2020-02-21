@@ -18,7 +18,7 @@ public class MLPRegressionSepLinear2D3EScript : MonoBehaviour
     private static extern IntPtr createMLPModel(int[] layout, int arraySize);
 
     [DllImport("ViDLL.dll")]
-    private static extern void trainMLPRegression(IntPtr model, double[] dataset, double[] expectedOutputs, int datasetSize, int iteractions, double alpha);
+    private static extern void trainMLPRegression(IntPtr model, double[] dataset, double[] expectedOutputs, int datasetSize, int iterations, double alpha);
 
     [DllImport("ViDLL.dll")]
     private static extern IntPtr predictMLPRegression(IntPtr model, double[] data);
@@ -70,7 +70,7 @@ public class MLPRegressionSepLinear2D3EScript : MonoBehaviour
             trainingOutputs[i] = trainingSpheres[i].position.y;
         }
         
-        trainMLPRegression(model, trainingInputs, trainingOutputs, trainingSpheres.Length, 100, 0.01);
+        trainMLPRegression(model, trainingInputs, trainingOutputs, trainingSpheres.Length, 10000, 0.01);
 
     }
 

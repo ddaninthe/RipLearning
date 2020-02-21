@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class MLPSepLinear2D3EMulticlassScript : MonoBehaviour
+public class MLPOKNonSepLinear2D50EMultiCrossMulticlassScript : MonoBehaviour
 {
     /*
      MLP* createPCMModel(int* layout, int arraySize);
@@ -16,13 +16,13 @@ public class MLPSepLinear2D3EMulticlassScript : MonoBehaviour
 
 
     [DllImport("ViDLL.dll")]
-    private static extern IntPtr createPCMModel(int[] layout, int arraySize);
+    private static extern IntPtr createMLPModel(int[] layout, int arraySize);
 
     [DllImport("ViDLL.dll")]
-    private static extern void trainPCMClassification(IntPtr model, double[] dataset, double[] expectedOutputs, int datasetSize, double nbIter, double learning);
+    private static extern void trainMLPClassification(IntPtr model, double[] dataset, double[] expectedOutputs, int datasetSize, double nbIter, double learning);
 
     [DllImport("ViDLL.dll")]
-    private static extern IntPtr predictPCMClassification(IntPtr model, double[] data);
+    private static extern IntPtr predictMLPClassification(IntPtr model, double[] data);
 
     [DllImport("ViDLL.dll")]
     private static extern void clear(IntPtr model);
@@ -48,8 +48,8 @@ public class MLPSepLinear2D3EMulticlassScript : MonoBehaviour
     public void CreateModel()
     {
         ReleaseModel();
-        layout = new int[2] { 2, 3 };
-        model = createPCMModel(layout, layout.Length);
+        layout = new int[4] { 2, 3, 3, 3 };
+        model = createMLPModel(layout, layout.Length);
         //PredictOnTestSpheres();
     }
 
@@ -83,7 +83,7 @@ public class MLPSepLinear2D3EMulticlassScript : MonoBehaviour
         }
         
 
-        trainPCMClassification(model, trainingInputs, trainingOutputs, trainingSpheres.Length, 10000, 0.0001);
+        trainMLPClassification(model, trainingInputs, trainingOutputs, trainingSpheres.Length, 10000, 0.01);
 
     }
 
@@ -92,20 +92,20 @@ public class MLPSepLinear2D3EMulticlassScript : MonoBehaviour
         int expectedLength = layout[layout.Length - 1];
         for (int i = 0; i < testSpheres.Length; i++)
         {
-            //testSpheres[i].gameObject.GetComponent<MeshRenderer>().material.color = Color.blue;
             var input = new double[] { testSpheres[i].position.x, testSpheres[i].position.z };
+            Debug.Log("sphere " + i + " : x = " + testSpheres[i].position.x + " / z = " + testSpheres[i].position.z);
             double[] predictedYArray = new double[expectedLength];
-            Marshal.Copy(predictPCMClassification(model, input), predictedYArray, 0, expectedLength);
-            Debug.Log("predictedArray first item -> " + predictedYArray[0]);
-            
-            /*for (int j = 0; j < 3; j++)
+            Marshal.Copy(predictMLPClassification(model, input), predictedYArray, 0, expectedLength);
+
+            for (int j = 0; j < predictedYArray.Length; j++)
             {
-                predictedYArray[j] = 0.0;
-            }   
-            predictedYArray[i % 3] = 1.0;*/
+                Debug.Log("predictedArray " + i + " item " + j + " -> " + predictedYArray[j]);
+            }
+            
 
             double maxValue = predictedYArray.Max();
             int predictedY = predictedYArray.ToList().IndexOf(maxValue);
+            Debug.Log(" Pour sphere " + i + " maxValue =  " + maxValue + " A l'index : " + predictedY);
             if (predictedY == 0) { testSpheres[i].gameObject.GetComponent<MeshRenderer>().material.color = Color.red; }
             else if (predictedY == 1) { testSpheres[i].gameObject.GetComponent<MeshRenderer>().material.color = Color.blue; }
             else { testSpheres[i].gameObject.GetComponent<MeshRenderer>().material.color = Color.yellow; }
