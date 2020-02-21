@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class MLPSepLinear2D3EMulticlassScript : MonoBehaviour
+public class MLPRegressionSepLinear2D3EScript : MonoBehaviour
 {
     /*
      MLP* createPCMModel(int* layout, int arraySize);
@@ -15,13 +15,16 @@ public class MLPSepLinear2D3EMulticlassScript : MonoBehaviour
 
 
     [DllImport("ViDLL.dll")]
-    private static extern IntPtr createPCMModel(int[] layout, int arraySize);
+    private static extern IntPtr createMLPModel(int[] layout, int arraySize);
 
     [DllImport("ViDLL.dll")]
-    private static extern void trainPCMClassification(IntPtr model, double[] dataset, double[] expectedOutputs, int datasetSize, double nbIter, double learning);
+    private static extern void trainMLPRegression(IntPtr model, double[] dataset, double[] expectedOutputs, int datasetSize, int iterations, double alpha);
 
     [DllImport("ViDLL.dll")]
-    private static extern double[] predictPCMClassification(IntPtr model, double[] data);
+    private static extern IntPtr predictMLPRegression(IntPtr model, double[] data);
+
+    [DllImport("ViDLL.dll")]
+    private static extern IntPtr predictMLPRegression2(IntPtr model, double[] data);
 
     [DllImport("ViDLL.dll")]
     private static extern void clear(IntPtr model);
@@ -51,7 +54,7 @@ public class MLPSepLinear2D3EMulticlassScript : MonoBehaviour
     {
         ReleaseModel();
         layout = new int[2] { 2, 1 };
-        model = createPCMModel(layout, layout.Length);
+        model = createMLPModel(layout, layout.Length);
         //PredictOnTestSpheres();
     }
 
@@ -64,20 +67,23 @@ public class MLPSepLinear2D3EMulticlassScript : MonoBehaviour
         {
             trainingInputs[2 * i] = trainingSpheres[i].position.x;
             trainingInputs[2 * i + 1] = trainingSpheres[i].position.z;
-            //Debug.Log("training spheres type numero " + i + " = " + trainingSpheres[i].GetType());
             trainingOutputs[i] = trainingSpheres[i].position.y;
         }
         
-        trainPCMClassification(model, trainingInputs, trainingOutputs, trainingSpheres.Length, 10000, 0.0001);
+        trainMLPRegression(model, trainingInputs, trainingOutputs, trainingSpheres.Length, 10000, 0.01);
 
     }
 
     public void PredictOnTestSpheres()
     {
+        int expectedLength = layout[layout.Length - 1];
         for (int i = 0; i < testSpheres.Length; i++)
         {
             var input = new double[] {testSpheres[i].position.x, testSpheres[i].position.z};
-            var predictedY = predictPCMClassification(model, input);
+            double[] predictedYArray = new double[expectedLength];
+            Marshal.Copy(predictMLPRegression(model, input), predictedYArray, 0, expectedLength);
+            Debug.Log("predictedArray first item -> " + predictedYArray[0]);
+            double predictedY = predictedYArray[0];
             testSpheres[i].position = new Vector3(
                 testSpheres[i].position.x,
                 Convert.ToSingle(predictedY),
