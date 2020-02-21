@@ -25,13 +25,64 @@ void trainNaiveRBF(RBF* model, int datasetSize, double* expectedOutputs, int dim
 
 	for (int i = 0; i < datasetSize; i++) {
 		for (int j = 0; j < datasetSize; j++) {
-			phi(i, j) = RBFExponent(gamma, model->coordinates[i], model->coordinates[j], dimensions);
+			phi(i, j) = exp(RBFExponent(gamma, model->coordinates[i], model->coordinates[j], dimensions));
 		}
 		
 		Y(i) = expectedOutputs[i];
 	}
 
 	VectorXd W = phi.inverse() * Y;
+	for (int i = 0; i < W.rows(); i++) {
+		model->weights[i] = W(i);
+	}
+}
+
+void trainRBFLloyd(RBF* model, int clusterCount, int datasetSize, double* expectedOutputs, int dimensions, double gamma) {
+	// Cluster assignation
+	double* dataPerCluster = new double[clusterCount];
+	double** clusterData = new double*[clusterCount];
+	double maxPerCluster = datasetSize / (double)clusterCount;
+	for (int i = 0; i < clusterCount; i++) {
+		dataPerCluster[i] = 0;
+	}
+
+	// Assign to cluster
+	int data = 0, assigned = 0;
+	while (assigned < datasetSize) {
+		int cluster = rand() % clusterCount;
+		if (dataPerCluster[cluster] < maxPerCluster * dimensions) {
+			for (int dim = 0; dim < dimensions; dim++) {
+				clusterData[cluster] = model->coordinates[assigned++];
+			}
+			dataPerCluster[cluster]++;
+		}
+	}
+
+	// First representents
+	double** representents = new double*[clusterCount];
+	for (int i = 0; i < clusterCount; i++) {
+		double* mu = new double[dimensions];
+		for (int dim = 0; dim < maxPerCluster; dim++) {
+
+		}
+	}
+
+	bool changed = true; // False when representants have not changed
+	while (changed) {
+
+	}
+
+	// Train
+	MatrixXd phi(datasetSize, clusterCount);
+	VectorXd Y(datasetSize);
+	for (int i = 0; i < datasetSize; i++) {
+		for (int j = 0; j < clusterCount; j++) {
+			phi(i, j) = exp(RBFExponent(gamma, model->coordinates[i], representents[j], dimensions));
+		}
+		Y(i) = expectedOutputs[i];
+	}
+
+	VectorXd W = ((phi.transpose() * phi).inverse() * phi.transpose()) * Y;
 	for (int i = 0; i < W.rows(); i++) {
 		model->weights[i] = W(i);
 	}

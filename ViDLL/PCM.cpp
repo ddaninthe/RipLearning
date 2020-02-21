@@ -1,8 +1,8 @@
 #include "PCM.h"
 #include "pch.h"
 
-MLP* createPCMModel(int* layout, int arraySize) {
-	MLP* model = new MLP();
+PCM* createPCMModel(int* layout, int arraySize) {
+	PCM* model = new PCM();
 	model->d = layout;
 	model->w = fillW(layout, arraySize);
 	model->delta = fillArrayZero(layout, arraySize);
@@ -48,7 +48,7 @@ double** fillX(int* layout, int l) {
 	return array;
 }
 
-void trainPCMClassification(MLP* model, double* dataset, double* expect, int dataSize, int nbIter, double learning) {
+void trainPCMClassification(PCM* model, double* dataset, double* expect, int dataSize, int nbIter, double learning) {
 	for (int i = 0; i < nbIter; i++) {
 		int random = rand() % dataSize;
 		double* data = dataset + random * (model->d[0]);
@@ -84,7 +84,7 @@ void trainPCMClassification(MLP* model, double* dataset, double* expect, int dat
 	}
 }
 
-void trainPCMRegression(MLP* model, double* dataset, double* expect, int dataSize, int nbIter, double learning) {
+void trainPCMRegression(PCM* model, double* dataset, double* expect, int dataSize, int nbIter, double learning) {
 	for (int i = 0; i < nbIter; i++) {
 		int random = rand() % dataSize;
 		double* data = dataset + random * (model->d[0]);
@@ -120,10 +120,10 @@ void trainPCMRegression(MLP* model, double* dataset, double* expect, int dataSiz
 	}
 }
 
-double* predictPCMClassification(MLP* model, double* data) {
+double* predictPCMClassification(PCM* model, double* data) {
 	// add input in l=0
 	for (int j = 1; j < model->d[0] + 1; j++) {
-		model->x[0][j] = data[j];
+		model->x[0][j] = data[j-1];
 	}
 	double sum = 0;
 	for (int l = 1; l < model->size; l++) {
@@ -144,10 +144,10 @@ double* predictPCMClassification(MLP* model, double* data) {
 	return results;
 }
 
-double* predictPCMRegression(MLP* model, double* data) {
+double* predictPCMRegression(PCM* model, double* data) {
 	// add input in l=0
 	for (int j = 1; j < model->d[0] + 1; j++) {
-		model->x[0][j] = data[j];
+		model->x[0][j] = data[j-1];
 	}
 
 	for (int l = 1; l < model->size - 1; l++) {
