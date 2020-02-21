@@ -14,4 +14,6 @@ extern "C" {
 	__declspec(dllexport) void trainMLPRegression(MLP* model, double* dataset, double* expectedOutputs, int datasetSize, int iterations, double alpha);
 	__declspec(dllexport) double* predictMLPClassification(MLP* model, double* inputs);
 	__declspec(dllexport) double* predictMLPRegression(MLP* model, double* inputs);
+	__declspec(dllexport) double* predictMLPClassification2(MLP* model, double* data);
+	__declspec(dllexport)double* predictMLPRegression2(MLP* model, double* data);
 }

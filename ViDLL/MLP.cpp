@@ -63,6 +63,7 @@ void trainMLPClassification(MLP* model, double* dataset, double* expectedOutputs
 		for (int i = 0; i < lastLayerSize; i++) {
 			model->x[lastLayerInd][i + 1] = prediction[i];
 		}
+		delete[]prediction;
 
 		// Deltas last layer
 		for (int j = 1; j < lastLayerSize + 1; j++) {
@@ -72,7 +73,7 @@ void trainMLPClassification(MLP* model, double* dataset, double* expectedOutputs
 		}
 
 		// Penultimate to first layers
-		for (int l = lastLayerInd; l >= 0; l--) {
+		for (int l = lastLayerInd; l > 0; l--) {
 			for (int i = 0; i < model->layers[l - 1] + 1; i++) {
 				double wd = 0;
 				for (int j = 1; j < model->layers[l] + 1; j++) {
@@ -117,7 +118,7 @@ void trainMLPRegression(MLP* model, double* dataset, double* expectedOutputs, in
 
 		// Penultimate to first layers
 		for (int l = lastLayerInd; l >= 0; l--) {
-			for (int i = 0; i < model->layers[l - 1] + 1; i++) {
+			for (int i = 0; i < model->layers[l - 1] + 1; i++) {	
 				double wd = 0;
 				for (int j = 1; j < model->layers[l] + 1; j++) {
 					wd += model->weights[l][i][j] * model->deltas[l][j];
@@ -160,16 +161,17 @@ double* predictMLPRegression(MLP* model, double* inputs) {
 		int previousLayerSize = model->layers[layer - 1];
 
 		// Sigmas
-		for (int i = 0; i < previousLayerSize + 1; i++) { // +1 for bias
-			for (int j = 1; j < layerSize + 1; j++) {
+		for (int j = 1; j < layerSize + 1; j++) {
+			model->x[layer][j] = 0;
+			for (int i = 0; i < previousLayerSize + 1; i++) { // +1 for bias
 				model->x[layer][j] += model->x[layer - 1][i] * model->weights[layer][i][j];
 			}
 		}
 
 		// Tanh of sigmas but the last layer
 		if (layer < model->layersCount - 1) {
-			for (int i = 1; i < layerSize + 1; i++) {
-				model->x[layer][i] = tanh(model->x[layer][i]);
+			for (int j = 1; j < layerSize + 1; j++) {
+				model->x[layer][j] = tanh(model->x[layer][j]);
 			}
 		}
 	}
@@ -180,4 +182,57 @@ double* predictMLPRegression(MLP* model, double* inputs) {
 	}
 
 	return results;
+}
+
+
+double* predictMLPClassification2(MLP* model, double* data) {
+	// add input in l=0
+	for (int j = 1; j < model->layers[0] + 1; j++) {
+		model->x[0][j] = data[j - 1];
+	}
+
+	double sum = 0.0;
+	for (int l = 1; l < model->layersCount; l++) {
+		for (int j = 1; j < model->layers[l] + 1; j++) {
+			sum = 0.0;
+			for (int i = 0; i < model->layers[l]; i++) {
+				sum += model->x[l - 1][i] * model->weights[l][i][j];
+			}
+			model->x[l][j] = tanh(sum);
+		}
+	}
+
+	// ne pas retourner le premier !
+	double* results = new double[model->layersCount - 1];
+	for (int i = 0; i < model->layersCount - 1; i++) {
+		results[i] = model->x[model->layersCount - 1][i + 1];
+	}
+	return results;
+}
+
+double* predictMLPRegression2(MLP* model, double* data) {
+	// add input in l=0
+	for (int j = 1; j < model->layers[0] + 1; j++) {
+		model->x[0][j] = data[j - 1];
+	}
+
+	double sum = 0.0;
+	for (int l = 1; l < model->layersCount - 1; l++) {
+		for (int j = 1; j < model->layers[l] + 1; j++) {
+			sum = 0.0;
+			for (int i = 0; i < model->layers[l]; i++) {
+				sum += model->x[l - 1][i] * model->weights[l][i][j];
+			}
+			model->x[l][j] = tanh(sum);
+		}
+	}
+	for (int j = 1; j < model->layers[model->layersCount - 1] + 1; j++) {
+		sum = 0.0;
+		for (int i = 0; i < model->layers[model->layersCount - 1]; i++) {
+			sum += model->x[model->layersCount - 1][i] * model->weights[model->layersCount - 1][i][j];
+		}
+		model->x[model->layersCount - 1][j] = sum;
+	}
+
+	return model->x[model->layersCount - 1];
 }
